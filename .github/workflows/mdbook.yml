@@ -1,0 +1,166 @@
+name: Deploy mdBook site to Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      MDBOOK_VERSION: "0.4.52"
+      MDBOOK_TOC_VERSION: "0.14.2"
+      MDBOOK_MERMAID_VERSION: "0.15.0"
+      MDBOOK_IMAGE_SIZE_VERSION: "0.2.1"
+      NODE_VERSION: "20.x"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Cache Rust toolchain and Cargo registry
+      - name: Cache Rust toolchain
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.rustup
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+          key: rust-toolchain-${{ runner.os }}-v1
+          restore-keys: |
+            rust-toolchain-${{ runner.os }}-
+
+      # Cache Cargo binaries (mdBook and preprocessors)
+      - name: Cache Cargo binaries
+        uses: actions/cache@v4
+        id: cache-cargo-binaries
+        with:
+          path: ~/.cargo/bin
+          key: cargo-binaries-${{ runner.os }}-mdbook-${{ env.MDBOOK_VERSION }}-toc-${{ env.MDBOOK_TOC_VERSION }}-mermaid-${{ env.MDBOOK_MERMAID_VERSION }}-imgsize-${{ env.MDBOOK_IMAGE_SIZE_VERSION }}-v1
+          restore-keys: |
+            cargo-binaries-${{ runner.os }}-mdbook-${{ env.MDBOOK_VERSION }}-
+
+      # Install Rust & mdBook (only if not cached)
+      - name: Install Rust & mdBook
+        if: steps.cache-cargo-binaries.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -eux
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+          if ! command -v rustup &> /dev/null; then
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          fi
+          "$HOME/.cargo/bin/rustup" update stable
+          "$HOME/.cargo/bin/rustup" default stable
+          "$HOME/.cargo/bin/cargo" install --version "${MDBOOK_VERSION}" mdbook --locked
+          "$HOME/.cargo/bin/cargo" install --version "${MDBOOK_TOC_VERSION}" mdbook-toc --locked
+          "$HOME/.cargo/bin/cargo" install --version "${MDBOOK_IMAGE_SIZE_VERSION}" mdbook-image-size --locked
+          "$HOME/.cargo/bin/cargo" install --version "${MDBOOK_MERMAID_VERSION}" mdbook-mermaid --locked
+
+      - name: Add Cargo bin to PATH
+        run: echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      # Install Haskell (for convert.hs)
+      - name: Install GHC and runhaskell
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q ghc
+
+      # Convert all .lean files to .md
+      - name: Convert Lean sources to Markdown
+        run: |
+          chmod +x scripts/convert.hs
+          find FPCourse -name '*.lean' | while read f; do
+            out="src/${f%.lean}.md"
+            mkdir -p "$(dirname "$out")"
+            scripts/convert.hs "$f" "$out"
+          done
+
+      # Cache APT artifacts for Chromium
+      - name: Restore APT cache (Chromium debs)
+        uses: actions/cache@v4
+        with:
+          path: apt-cache
+          key: apt-chromium-${{ runner.os }}-v1
+          restore-keys: |
+            apt-chromium-${{ runner.os }}-
+
+      - name: Install system Chromium
+        run: |
+          mkdir -p apt-cache/archives apt-cache/lists/partial
+          sudo apt-get -o Dir::Cache::archives="$PWD/apt-cache/archives" \
+                       -o Dir::State::lists="$PWD/apt-cache/lists" update
+          sudo apt-get -o Dir::Cache::archives="$PWD/apt-cache/archives" \
+                       -o Dir::State::lists="$PWD/apt-cache/lists" install -y chromium-browser || \
+          sudo apt-get -o Dir::Cache::archives="$PWD/apt-cache/archives" \
+                       -o Dir::State::lists="$PWD/apt-cache/lists" install -y chromium
+
+      - name: Install Mermaid CLI
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: "true"
+        run: |
+          npm i -g @mermaid-js/mermaid-cli
+          echo "$(npm bin -g)" >> $GITHUB_PATH
+
+      - name: Configure Puppeteer to use system Chromium
+        run: |
+          if command -v chromium-browser >/dev/null 2>&1; then echo "PUPPETEER_EXECUTABLE_PATH=$(command -v chromium-browser)" >> $GITHUB_ENV; fi
+          if command -v chromium >/dev/null 2>&1; then echo "PUPPETEER_EXECUTABLE_PATH=$(command -v chromium)" >> $GITHUB_ENV; fi
+
+      # Normalize Markdown to NFC
+      - name: Normalize Markdown files to NFC
+        run: |
+          python3 - << 'PY'
+          import os, unicodedata
+          for root, _, files in os.walk("src"):
+              for f in files:
+                  if f.endswith(".md"):
+                      p = os.path.join(root, f)
+                      with open(p, 'rb') as fh:
+                          b = fh.read()
+                      try:
+                          s = b.decode('utf-8')
+                      except UnicodeDecodeError:
+                          continue
+                      n = unicodedata.normalize('NFC', s)
+                      if n != s:
+                          with open(p, 'w', encoding='utf-8', newline='\n') as out:
+                              out.write(n)
+          PY
+
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Build with mdBook
+        run: mdbook build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./book
+
+  deploy:
+    environment:
+      name: github-pages
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

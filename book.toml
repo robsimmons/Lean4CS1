@@ -1,0 +1,32 @@
+[book]
+title = "A First Course in Typed Functional Programming"
+authors = ["Kevin Sullivan"]
+language = "en"
+multilingual = false
+description = "A First Course in Typed Functional Programming — Lean 4 Edition"
+src = "src"
+
+[build]
+build-dir = "book"
+
+[output.html]
+mathjax-support = true
+git-repository-url = "https://github.com/kevinsullivan/Lean4CS1"
+
+[output.html.playground]
+boring-prefixes = ["# "]
+
+[output.html.print]
+enable = true
+
+[preprocessor.toc]
+command = "mdbook-toc"
+renderer = ["html"]
+
+[preprocessor.mermaid]
+command = "mdbook-mermaid"
+renderer = ["html"]
+
+[preprocessor.image-size]
+command = "mdbook-image-size"
+renderer = ["html"]
