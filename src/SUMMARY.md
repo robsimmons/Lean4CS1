@@ -1,5 +1,7 @@
 # CS1: Programming, Certified
 
+[Preface](./preface.md)
+
 [Introduction](./introduction.md)
 
 ---
