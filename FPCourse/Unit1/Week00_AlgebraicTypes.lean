@@ -76,10 +76,6 @@ Every `#eval` you write invokes this machine.  Every `by decide` runs
 it on a decision procedure.  Every `rfl` succeeds because both sides
 of the equation reach the *same* normal form.
 
-**Evaluation.**  `#eval e` does not merely print a value — it *evaluates*
-`e` by applying *reduction rules* one step at a time until no further
-reduction is possible.  The irreducible result is called a *normal form*.
-
 Each `#eval` above is a chain of named reductions:
 
 | Expression | Reduction steps | Normal form |
