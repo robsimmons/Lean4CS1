@@ -73,37 +73,43 @@ theorem add_zero_all : ∀ n : Nat, n + 0 = n :=
 -- when P does not mention types not in scope.
 
 /-! @@@
-## 2.3  The design recipe — with specification as Step 0
+## 2.3  The design recipe
 
 Every function in this course is designed using the following steps.
-**Step 0 is new here**: before writing the signature, state what the
-function must satisfy as a proposition.
+English descriptions are written as Lean *docstrings* (`/-- ... -/`
+placed immediately before a definition) so the tooling surfaces them
+in hover text.
 
 | Step | Activity |
 |------|----------|
-| **0. Specification** | Write a proposition `P : Prop` that any correct implementation must satisfy. |
+| 0. Description | Write a `/-- docstring -/` saying what the function does in plain English. |
 | 1. Signature | Write the name, argument types, and return type. |
-| 2. Examples | Write concrete `#eval` checks with expected outputs. |
-| 3. Template | Write the function body shape from the input types. |
-| 4. Code | Fill in the body. |
-| 5. Check | Verify the compiler accepts the specification type. |
+| 2. Specification | Write a `∀` proposition over the signature expressing what the output must satisfy. |
+| 3. Examples | Write concrete `#eval` checks with expected outputs. |
+| 4. Template | Write the function body shape from the input types. |
+| 5. Code | Fill in the body. |
+| 6. Check | Verify the compiler accepts both the definition and the specification. |
 
-The specification in Step 0 is a *type*.  Later, the compiler will
-check that the implementation inhabits that type.
+The description comes first so you understand *what* before *how*.
+The signature must precede the specification — the spec names the
+function, so the `def` must exist before the `theorem` can be stated.
 @@@ -/
 
 -- Example: doubling a number.
--- Step 0 — Specification:
---   double n = n + n
---   Formally: ∀ n : Nat, double n = n + n
--- Step 1 — Signature:
-def double'' (n : Nat) : Nat :=
--- Step 3/4 — Template and code:
-  n + n
 
--- Step 5 — Verify the specification holds (provided proof):
--- Evaluation: double'' n ↝ n + n (by δ-reduction, unfolding the definition).
--- Both sides of the equation reduce to the same expression, so rfl applies.
+-- Step 0 — Description:
+/-- `double'' n` returns twice `n`. -/
+-- Step 1 — Signature + Steps 4/5 Template and code:
+def double'' (n : Nat) : Nat := n + n
+
+-- Step 3 — Examples:
+#eval double'' 0    -- 0
+#eval double'' 5    -- 10
+
+-- Step 2 — Specification (stated after the def, since it names double''):
+--   ∀ n : Nat, double'' n = n + n
+-- Step 6 — Check (provided proof):
+-- Evaluation: double'' n ↝ n + n (δ-reduction).  Both sides are identical.
 theorem double''_spec : ∀ n : Nat, double'' n = n + n :=
   fun n => rfl
 
