@@ -30,12 +30,13 @@ Accordingly, except in particular cases, proof constructions are automated.
 
 Among the types introduced in the first thirteen weeks, the core ones —
 function types (`→`), product types (`×`), sum types (`⊕`), `Unit`, `Empty`,
-and the quantifier types `∀` and `∃` — are not an arbitrary selection.
-They constitute, collectively, the full domain of the Curry-Howard
-correspondence.  Types such as `Option`, `List`, and `BTree` are useful
-programming types built on top of that foundation, but the correspondence
-itself lives in the core.  Week 14 does not introduce new material;
-it reveals what those core types have meant all along.
+and the quantifier types `∀` and `∃` — were chosen precisely because they
+are both deeply fundamental programming types *and*, from another perspective,
+precisely the logical connectives of the generalized predicate logic of Lean.
+Types such as `Option`, `List`, and `BTree` are useful programming types
+built on top of that foundation, but the Curry-Howard correspondence itself
+lives in the core.  Week 14 does not introduce new material; it reveals what
+those core types have meant all along.
 
 This design has a direct consequence for sequencing: it establishes the complete
 basis for a second course, **CS2: Certified Proofs**, which simply flips the

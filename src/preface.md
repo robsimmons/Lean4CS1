@@ -104,10 +104,11 @@ in existing CS1 courses:
    automation boundary, not merely a collection of tactics.
 
 3. **The data type suite as a covert Curry-Howard curriculum.**  The core
-   types — `→`, `×`, `⊕`, `Unit`, `Empty`, `∀`, `∃` — are introduced as
-   programming types.  They are the logical connectives.  Week 14 names what
-   students have been doing all along.  The revelation is structural, not
-   incidental.
+   types — `→`, `×`, `⊕`, `Unit`, `Empty`, `∀`, `∃` — were chosen precisely
+   because they are both deeply fundamental programming types *and*, from
+   another perspective, precisely the logical connectives of the generalized
+   predicate logic of Lean.  Week 14 names what students have been doing all
+   along.  The revelation is structural, not incidental.
 
 4. **The `#eval` → `rfl` → `decide` → `theorem` verification ladder.**
    Students experience concretely what it means for verification strength
