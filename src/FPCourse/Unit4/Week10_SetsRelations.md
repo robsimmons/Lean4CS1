@@ -215,14 +215,22 @@ value.  Sorting is about relations between the input and output lists.
 
 ## Exercises
 
-1. Let `s = {n : Nat | n % 2 = 0}` and `t = {n : Nat | n < 10}`.
-   State and check with `decide` that `s ∩ t = {0, 2, 4, 6, 8}`.
-   (You will need to work with `Finset` for decidable checking;
-   or just state the subset direction and check small cases.)
+1. State De Morgan's laws for sets as Lean `Prop` terms.  Do not prove
+   them — just write the types:
+   (a) `∀ (s t : Set α) (x : α), x ∈ (s ∪ t)ᶜ ↔ x ∈ sᶜ ∧ x ∈ tᶜ`
+   (b) `∀ (s t : Set α) (x : α), x ∈ (s ∩ t)ᶜ ↔ x ∈ sᶜ ∨ x ∈ tᶜ`
+   Look up `Set.compl_union` and `Set.compl_inter` in Mathlib and compare
+   your statements to theirs.  Notice that De Morgan's law for sets IS
+   De Morgan's law for propositions, applied pointwise to elements.
 
-2. Define the relation `adjacentList : Rel (List Nat) (List Nat)` where
-   `xs` and `ys` are adjacent if they differ by one insertion or deletion.
-   State (as a Prop) that this relation is symmetric.
+2. Define the relation `IsPrefix : Rel (List α) (List α)` where `xs`
+   is a prefix of `ys` if there exists `zs` such that `xs ++ zs = ys`:
+   ```lean
+   def IsPrefix (xs ys : List α) : Prop := ∃ zs, xs ++ zs = ys
+   ```
+   State (as Props, without proving them) that `IsPrefix` is reflexive
+   and transitive.  What would a proof of reflexivity look like?
+   (Hint: what `zs` witnesses `xs ++ zs = xs`?)
 
 3. Show that `divides` is reflexive and transitive.  Is it symmetric?
 

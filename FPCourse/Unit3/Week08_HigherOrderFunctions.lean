@@ -182,13 +182,18 @@ theorem map_foldr_fusion (f : β → γ → γ) (z : γ) (g : α → β) (xs : L
 4. Write `flatMap (f : α → List β) : List α → List β` using `foldr`.
    State its specification in terms of `List.bind`.
 
-5. The *Foldable* abstraction: define a type class
-   ```lean
-   class MyFoldable (t : Type → Type) where
-     fold : (α → β → β) → β → t α → β
+5. Write `flatten : List (List α) → List α` using `foldr` that
+   concatenates a list of lists.  Test it:
    ```
-   Give instances for `List` and `Option`.  State the specification:
-   "fold with `(· :: ·)` and `[]` on a List returns the list itself."
+   #eval flatten [[1, 2], [3], [4, 5, 6]]   -- [1, 2, 3, 4, 5, 6]
+   #eval flatten ([] : List (List Nat))      -- []
+   ```
+   State its specification: `∀ xss, flatten xss = List.join xss`.
+   Then write `countWhere : (α → Bool) → List α → Nat` using `foldr`
+   that counts elements satisfying a predicate.  Test:
+   ```
+   #eval countWhere Nat.even [1, 2, 3, 4, 5]   -- 2
+   ```
 @@@ -/
 
 end Week08

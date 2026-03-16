@@ -631,24 +631,34 @@ they are your co-programmer.
    that `α` has no values.  Then write a term of type `False → Nat × Bool × String`
    and explain what it means in both the computational and logical readings.
 
-3. Write a function `classify : Nat → String ⊕ String` that returns
-   `Sum.inl "even"` if the input is even and `Sum.inr "odd"` if it is odd.
-   Use `if/then/else` and the `%` (mod) operator.  Test it with `#eval`.
-
-4. Write the type of a function `lookup` that takes a `Nat` key and a
-   `List (Nat × String)` (association list) and returns `Option String`.
-   Then implement it by recursion on the list.  Which of the six constructors
-   does the return type use, and why?
-
-5. A `Result` type represents either success or failure:
-   ```lean
-   inductive Result (α ε : Type) where
-     | ok  : α → Result α ε
-     | err : ε → Result α ε
+3. Write `twice : (α → α) → α → α` that applies a function twice —
+   `twice f x = f (f x)`.  Test it with `#eval`:
    ```
-   Define it.  Then write a function `safeDiv : Nat → Nat → Result Nat String`
-   that returns `ok (a / b)` when `b ≠ 0` and `err "division by zero"` otherwise.
-   What type constructor does `Result α ε` correspond to in the six-constructor table?
+   #eval twice double 3        -- 12
+   #eval twice negate false    -- false
+   ```
+   When `α` is a Prop, what does `twice` say logically?
+   Write the type `(P → P) → P → P` in Lean and read it aloud.
+
+4. Write `mapOption : (α → β) → Option α → Option β` using `match`.
+   It should apply `f` to the wrapped value if `some`, return `none` otherwise.
+   Test it:
+   ```
+   #eval mapOption double (some 5)     -- some 10
+   #eval mapOption double none         -- none
+   #eval mapOption negate (some true)  -- some false
+   ```
+   Which two type constructors from the six-constructor table does the
+   type of `mapOption` use?
+
+5. For each description, write the Lean type using only the six constructors
+   from §0.7.  Write just the type — not a term inhabiting it.
+   (a) A person's name (String) paired with their score (Nat)
+   (b) A result that is either a computed Nat or an error String
+   (c) A function that takes any proof of `P ∧ Q` and returns a proof of `Q`
+   (d) Evidence that `¬ (2 + 2 = 5)`
+   (e) A value certifying that the type `Empty` is uninhabited
+   Then use `decide` to verify (d).  What does Lean do to check it?
 @@@ -/
 
 end Week00

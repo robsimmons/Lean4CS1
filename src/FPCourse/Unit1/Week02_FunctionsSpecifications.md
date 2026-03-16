@@ -175,9 +175,16 @@ The examples below show how to read proof-carrying function types.
    Explain in English what a term of that type represents both
    computationally and logically.
 
-3. Write a proof of `(∀ n : Nat, n = n) ↔ True`.
+3. Use `#print Iff` to inspect the definition of `↔`.  What are its
+   two fields?  Use `decide` to verify:
+   (a) `(2 < 3) ↔ ¬(3 ≤ 2)`
+   (b) `(True ∧ True) ↔ True`
+   (c) `(True ∧ False) ↔ False`
+   For each, state in English what the biconditional asserts.
 
-4. Write a proof of `¬ (True ∧ False)`.
+4. Use `decide` to verify `¬ (True ∧ False)`.
+   Then explain: what is the type of `¬ (True ∧ False)` in full,
+   unfolding `¬` to `→ False`?
 
 5. State (as a Lean `Prop`) the specification for a function
    `max' : Nat → Nat → Nat` that returns the larger of two numbers.

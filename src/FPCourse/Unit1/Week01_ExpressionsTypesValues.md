@@ -171,17 +171,25 @@ Every week adds new type constructors to this table.
 
 ## Exercises
 
-1. Use `#check` to find the types of `List.length`, `List.append`,
-   and `Nat.rec`.
+1. Use `#check` to find the types of `Nat.add`, `Nat.mul`, and
+   `String.append`.  For each, write in plain English what the type
+   says the function does.  Are these types curried?  How many
+   arguments does each take?
 
 2. Write a product type that pairs a `String` with a `Nat`.
    Construct a value of that type.
 
 3. Write `example : 7 * 6 = 42 := _` and replace `_` with the
-   correct proof term.
+   correct proof term.  (Hint: both sides evaluate to the same
+   normal form.)
 
-4. Write `example : ∀ x ∈ [2, 4, 6], x % 2 = 0 := _` and supply
-   the proof.
+4. Use `decide` to verify each claim:
+   (a) `17 * 23 = 391`
+   (b) `100 < 200 ∧ 200 < 300`
+   (c) `¬ (5 * 5 = 26)`
+   (d) `(7 + 3) * 2 = 7 * 2 + 3 * 2`
+   For each, identify whether the proposition is atomic or built
+   from connectives (`∧`, `¬`).
 
 5. Why can't you write `example : (1.0 : Float) = 1.0 := decide`?
    (Hint: think about what equality on `Float` would require.
