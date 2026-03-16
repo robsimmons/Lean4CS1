@@ -6,6 +6,7 @@
 
 ## Unit 1: Expressions, Functions, Recursion
 
+- [Week 0: Algebraic Types — Computation and Logic](./FPCourse/Unit1/Week00_AlgebraicTypes.md)
 - [Week 1: Expressions, Types, and Values](./FPCourse/Unit1/Week01_ExpressionsTypesValues.md)
 - [Week 2: Functions and Specifications](./FPCourse/Unit1/Week02_FunctionsSpecifications.md)
 - [Week 3: Recursion and Termination](./FPCourse/Unit1/Week03_RecursionTermination.md)
