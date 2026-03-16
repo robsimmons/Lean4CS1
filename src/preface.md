@@ -1,5 +1,42 @@
 # Preface
 
+## How to Use This Book
+
+**Step 1 — Fork the repository.**  Visit
+[github.com/kevinsullivan/Lean4CS1](https://github.com/kevinsullivan/Lean4CS1)
+and click **Fork** to create your own copy under your GitHub account.
+This gives you a personal space to work through exercises and make notes
+without affecting the original.
+
+**Step 2 — Clone your fork.**
+
+```bash
+git clone https://github.com/<your-username>/Lean4CS1.git
+cd Lean4CS1
+```
+
+**Step 3 — Open the project in VS Code.**
+
+```bash
+code .
+```
+
+**Step 4 — Reopen in the Dev Container.**  This project ships with a
+pre-configured development container that includes Lean 4, Mathlib, and
+all required tooling.  When VS Code opens the folder you will see a
+notification: *"Folder contains a Dev Container configuration file.
+Reopen in Container?"* — click **Reopen in Container**.
+
+If the notification does not appear, open the Command Palette
+(`Cmd+Shift+P` / `Ctrl+Shift+P`), type
+**Dev Containers: Reopen in Container**, and press Enter.
+
+VS Code will build the container on first use (this takes a few minutes)
+and then reopen the project inside it.  All subsequent opens are fast.
+Once inside the container, Lean's language server starts automatically
+and you will see type information and inline feedback as you work through
+the `.lean` files.
+
 ## Why This Book
 
 The cost of constructing formal proofs even in specialized and deeply
