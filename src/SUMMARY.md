@@ -1,4 +1,4 @@
-# A First Course in Typed Functional Programming
+# A Certified Introduction to Programming
 
 [Introduction](./introduction.md)
 

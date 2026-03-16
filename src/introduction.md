@@ -8,7 +8,7 @@ Draft For Comment
 
 ---
 
-A First Course in Typed Functional Programming — Lean 4 Edition
+A Certified Introduction to Programming
 
 A 14-week literate Lean 4 curriculum for a first course in typed functional programming.
 Every file in this course compiles cleanly against Lean 4 / Mathlib v4.28.0.
@@ -29,14 +29,14 @@ Accordingly, except in particular cases, proof constructions are automated.
 
 ## Course Structure
 
-| Unit | Weeks | Theme |
-|------|-------|-------|
-| 1 | 1–3 | Expressions, Functions, Recursion |
-| 2 | 4–7 | Algebraic Datatypes, Lists, Trees, Decidability |
-| 3 | 8–9 | Higher-Order Functions, Specifications |
-| 4 | 10 | Sets and Relations |
-| 5 | 11–12 | Abstract Types, Type Classes |
-| 6 | 13–14 | Streams, Curry-Howard |
+| Unit | Weeks | Theme                                            |
+| ---- | ----- | ------------------------------------------------ |
+| 1    | 1–3   | Expressions, Functions, Recursion                |
+| 2    | 4–7   | Algebraic Datatypes, Lists, Trees, Decidability  |
+| 3    | 8–9   | Higher-Order Functions, Specifications           |
+| 4    | 10    | Sets and Relations                               |
+| 5    | 11–12 | Abstract Types, Type Classes                     |
+| 6    | 13–14 | Streams, Curry-Howard                            |
 
 ## Assessment Forms
 
