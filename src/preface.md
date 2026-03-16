@@ -148,10 +148,16 @@ the same, reread from the logical side of the Curry-Howard correspondence.
 ## What's Missing Here
 
 In its current form this book is fairly bare bones, not particularly warm
-and fuzzy, and lacking in examples of applications that are fun, linked to
+and fuzzy. It's lacking in examples of applications that are fun, linked to
 real work domains, graphical or interactive, etc. Further skinning of this
 kind would be helpful. For now its bare bones character makes discussing the
 core content easier, perhaps.
+
+Realistically, the amount of material covered is likely too much except for
+strong students. Subsetting would be needed. Numerous topics could be elided
+or shortened considerably. How to distill this integral course into one that
+has the same effect but really fits comfortably into a single semester is a
+good question to address.
 
 ## Contact
 
