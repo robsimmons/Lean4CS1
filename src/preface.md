@@ -66,7 +66,7 @@ automation confidently for those that do.
 ## Intellectual Foundations
 
 This curriculum stands on the shoulders of two landmark works in programming
-education.
+education, and is informed by a third from the proof-assistant tradition.
 
 The primary pedagogical influence is **How to Design Programs (HtDP)** by
 Matthias Felleisen, Robert Bruce Findler, Matthew Flatt, and Shriram
@@ -101,16 +101,33 @@ more graduated approach.
 *Structure and Interpretation of Computer Programs*, 2nd ed.
 MIT Press, 1996. [mitpress.mit.edu](https://mitpress.mit.edu/9780262510875/)
 
+A more distant reference point — noted here to clarify what this course is *not* — is
+**Software Foundations** by Benjamin C. Pierce et al.[^sf]  Software Foundations is
+the landmark text for machine-checked reasoning in a proof assistant (Coq), and its
+influence on the field is immense.  It is not, however, an introductory programming
+course: it is pitched at the graduate level, it presupposes fluency in the very
+functional-programming concepts this course teaches, and proof construction is its
+central activity.  This course can be understood as the missing prerequisite — the
+CS1 that prepares students to engage with Software Foundations (or its Lean
+equivalents) in a subsequent course.
+
+[^sf]: Pierce, B. C., et al.
+*Software Foundations*, vol. 1: Logical Foundations.
+Electronic textbook, 2024. [softwarefoundations.cis.upenn.edu](https://softwarefoundations.cis.upenn.edu)
+
 ## What's Novel
 
 Novel features of this curriculum, no direct precedent in existing CS1
 course proposal, to our knowledge, include the following:
 
-1. **Machine-checked specifications at CS1 level.**  Courses in formal
-   verification (Software Foundations, PLFA) achieve machine-checked
-   correctness, but at graduate level and with proof construction as the
-   central skill.  This course achieves the same correctness guarantee at
-   CS1 level by automating proof construction wherever possible.
+1. **Machine-checked specifications at CS1 level.**  Existing courses that
+   achieve machine-checked correctness — **Software Foundations** (Pierce et al.)
+   and **Programming Language Foundations in Agda** (PLFA) — do so at the
+   graduate level.  They assume familiarity with most of the programming
+   concepts this course teaches, and both place proof construction at the
+   center of the curriculum.  This course achieves the same correctness
+   guarantee at CS1 level by automating proof construction wherever possible,
+   so that specification — not proof — is the primary skill.
 
 2. **Decidability as explicit curriculum content.**  The question of *when*
    automation works — and why it provably cannot work for certain propositions
