@@ -37,7 +37,7 @@ include certified programming.
 This document is a hypothesized conceptual skeleton for a course where
 specification and programming are one from day one; proof-construction
 is not taught or expected of students; but where automated construction
-of decidable propositions (itself a topic) is systematic and routine, allowing
+of proofs of decidable propositions (itself a topic) is systematic and routine, allowing
 students to focus attention on the *language* of specification not
 on explicit proofs.
 
