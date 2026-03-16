@@ -2,51 +2,66 @@
 
 ## Why This Book
 
-The cost of constructing formal proofs is dropping rapidly, driven by advances
-in proof automation and AI-assisted verification.  As that cost approaches zero,
-the barrier that has historically confined certified software to research and
-high-criticality settings diminishes; and as costs drop precipitously, demand
-will increase rapidly.  Software that carries a machine-checked correctness
-proof — certified software — is on the verge of becoming a mainstream
-engineering expectation.
+The cost of constructing formal proofs even in specialized and deeply
+mathematical and sofware domains is collapsing, driven by advances in
+proof automation and AI-assisted verification.  As these costs drop, the
+impracticality barrier that has historically confined certified software
+to research and high-criticality settings crumbles. 
 
-The technology that makes this possible is the constructive logic proof assistant.
-The leading system today is **Lean 4**.  To obtain the benefits of certified
-software, one must work in the language of such a system.  That language demands
-fluency in four things: data types, data values, propositions, and proofs.
-This is not an exotic requirement.  It is simply the language of mathematics
-made executable.
+As costs drop, demand soars.  Software that carries a machine-checked
+correctness proof — certified software — is on the verge of becoming a
+mainstream engineering expectation. Attention can finally shift to where
+it's needed: understanding what to specify and how to specify it in the
+first place.
 
-The secret path to certified software is squarely through the
-**Curry-Howard correspondence**: the deep theorem that computation and proof
-are the same thing viewed from two angles.  A program and its correctness proof
-are not separate artifacts.  They are one.  A type-correct program in Lean 4
-*is* a proof of its specification.
+The technology that makes this possible is the constructive logic proof
+assistant. The leading system today is **Lean 4**.  To obtain the benefits
+of certified software, one must however work in the programming language
+of such a system. That in turn demands fluency in data/functions types and
+values, and in logical/mathematical propositions and their proofs values.
+The reward for gaining fluency in predicate logic and mathematics far more
+broadly, is that it is now made executable.
 
-Today, however, CS undergraduate curricula are arguably not ready for this
-change.  This document is a proposed conceptual skeleton for a
-*specification- and programming-focused, but not proof-construction-focused*
-first course for potential or actual CS majors.
+A thesis underlying the structuring of this course skeleton, hardly new,
+is learning to program with those types on the computational side of the
+Curry Howard correspondence will deeply prepare students to transition to
+the second (forthcoming) course skeleton: Computation and proof are the
+same thing viewed from two angles.  A program and its correctness proof
+are not separate artifacts.  They are one.  A type-correct program in Lean
+4 *is* a proof of its specification.
+
+CS undergraduate curricula today are generally far from ready for the
+coming (I expect) surge in demand for certified software engineering to
+include certified programming.
+
+This document is a hypothesized conceptual skeleton for a course where
+specification and programming are one from day one; proof-construction
+is note taught or expected of students; bet where autmated construction
+of decidable propositions (itself a topic) is carried out systematically
+allow students to focus attention on the *language* of specification not
+on explicit proofs.
 
 ## What This Book Is
 
-This draft provides a conceptual skeleton for a first undergraduate course
-in computer science built on this foundation.  The course is a programming
-course — but not just any programming: *certified* programming.  Specification
-is integral from the outset.  Every function is accompanied by a proposition
-stating what it must do, and the type checker verifies that the implementation
-satisfies that proposition.  A correct program, in this setting, is by
-definition a proof-carrying program.
+The course is squarely intended and formulated as a *programming* course:
+not just any programming but a course in *certified* programming. In this
+course, specification and the routing treatment of proofs as data, are
+integral from the outset.  Every function is accompanied by a proposition
+stating what it must do. The type checker verifies that the implementation
+provided by the student satisfies that proposition.  A correct program, in
+this setting, is by definition a proof-carrying program.
 
-The course is not, however, a course in proof construction.  That is the
-subject of the sequel.  Here, proof construction is strategically suppressed.
-Where proofs are required, they are supplied — but in all but selected cases,
-proof construction is **fully automated**.  The mechanism is decidability: for
-propositions in sufficiently constrained formal languages (propositional logic,
-bounded arithmetic, finite equality), a decision procedure exists that either
-produces a proof or reports that none can be found.  Lean 4's `decide` term
-is that procedure.  Students learn to recognize which propositions fall within
-the decidable fragment and to invoke automation confidently for those that do.
+We further emphasize that the course is unique in surfacing specification
+while submersing proof construction, not by omitting it, but by leveraging
+automated proof construction in Lean to relieve students of having to prove
+anything themselves.
+
+The mechanism is decidability: for propositions in sufficiently constrained
+formal languages (propositional logic, bounded arithmetic, finite equality),
+a decision procedure exists that either produces a proof or reports that none
+can be found.  Lean 4's `decide` term is that procedure.  Students learn to
+recognize which propositions fall within the decidable fragment and to invoke
+automation confidently for those that do.
 
 ## Intellectual Foundations
 
@@ -88,8 +103,8 @@ MIT Press, 1996. [mitpress.mit.edu](https://mitpress.mit.edu/9780262510875/)
 
 ## What Is Novel
 
-Several features of this curriculum have, to our knowledge, no direct precedent
-in existing CS1 courses:
+Novel features of this curriculum, no direct precedent in existing CS1 
+course proposal, to our knowledge, include the following:
 
 1. **Machine-checked specifications at CS1 level.**  Courses in formal
    verification (Software Foundations, PLFA) achieve machine-checked
@@ -118,29 +133,14 @@ in existing CS1 courses:
 5. **An explicit two-course arc.**  The course is designed as the
    computational half of a pair.  CS2: Certified Proofs flips the
    orientation from `Type` to `Prop`; every concept ports exactly.
-   The architecture of the sequel is visible in the structure of this course.
-
-## Foundation for What Comes Next
-
-This course is designed to establish a *complete* foundation in the
-computational and programming realm for all of the intuitions needed to
-rapidly grasp what comes in the logical realm.  Every inference rule in
-predicate logic has a computational counterpart already encountered here:
-implication introduction is function abstraction; conjunction introduction
-is pair construction; disjunction introduction is sum injection; universal
-generalization is polymorphic function abstraction; existential introduction
-is dependent pair construction.  When a student in CS2 sees the inference
-rule for `∧`-introduction, they have already written `And.intro` dozens of
-times — they called it building a product type.  The move from CS1 to CS2
-is not a change of subject.  It is a change of vocabulary for the same
-underlying structure.
+   The architecture of the sequel, indeed of natural deducation proof,
+   is the laid down for students by the overall structure of this course.
 
 ## The Sequel
 
-This course provides the complete computational foundation.  Its direct sequel,
-**CS2: Certified Proofs**, flips the orientation: from `Type` to `Prop`, from
-computing a value to proving a proposition.  Every concept introduced here —
-algebraic data types, recursion, higher-order functions, specifications,
-sets, relations, type classes — ports intact to that setting.  CS2 is not a
-new subject.  It is this subject, reread from the logical side of the
-Curry-Howard correspondence.
+The sequel,**CS2: Certified Proofs**, flips the orientation: from `Type`
+to `Prop`, from computing a value to proving a proposition.  Each concept
+introduced here in the realm of *programming* — algebraic data types,
+recursion, higher-order functions, specifications, sets, relations, type
+classes — ports intact to that setting.  CS2 is thus not a new subject but
+the same, reread from the logical side of the Curry-Howard correspondence.
