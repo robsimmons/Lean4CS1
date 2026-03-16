@@ -15,8 +15,11 @@ Every file in this course compiles cleanly against Lean 4 / Mathlib v4.28.0.
 
 ## Design Commitments
 
-Students emerge fluent in computational and logical types, but proof construction
-is not the primary assessment target.
+Students emerge fluent in computational and logical types.
+Knowledge of proof construction is **not** an objective of this course.
+The focus is instead on certified *computation*: writing functions,
+stating their specifications as propositions, and verifying them.
+Accordingly, except in particular cases, proof constructions are automated.
 
 - Propositions are types from Week 1.
 - `decide` produces proofs for decidable propositions.
