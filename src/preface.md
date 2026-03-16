@@ -1,5 +1,9 @@
 # Preface
 
+## To Contact the Author
+
+Email Kevin Sullivan at sullivan.kevinj@gmail.com.
+
 ## Why This Book
 
 The cost of constructing formal proofs even in specialized and deeply
@@ -175,4 +179,4 @@ good question to address.
 
 If you're interested in commenting on, evolving, revising, using these materials,
 etc., please feel free to drop a line. My personal email,
-[sullivan.kevinj@gmail.com](mailto:sullivan.kevinj@gmail.com).
+[sullivan.kevinj at gmail.com](mailto:sullivan.kevinj@gmail.com).
