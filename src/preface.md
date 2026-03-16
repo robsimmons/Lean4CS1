@@ -45,7 +45,7 @@ on explicit proofs.
 
 The course is squarely intended and formulated as a *programming* course:
 not just any programming but a course in *certified* programming. In this
-course, specification and the routing treatment of proofs as data, are
+course, specification and the routine treatment of proofs as data, are
 integral from the outset.  Every function is accompanied by a proposition
 stating what it must do. The type checker verifies that the implementation
 provided by the student satisfies that proposition.  A correct program, in
