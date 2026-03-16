@@ -2,7 +2,7 @@
 
 ## To Contact the Author
 
-Email Kevin Sullivan at sullivan.kevinj@gmail.com.
+Email Kevin Sullivan at [sullivan.kevinj at gmail.com](mailto:sullivan.kevinj@gmail.com).
 
 ## Why This Book
 
@@ -177,6 +177,5 @@ good question to address.
 
 ## Contact
 
-If you're interested in commenting on, evolving, revising, using these materials,
-etc., please feel free to drop a line. My personal email,
-[sullivan.kevinj at gmail.com](mailto:sullivan.kevinj@gmail.com).
+If you're interested in discussing these materials or CS1 2030 more generally,
+feel free to drop a line. My personal email is [sullivan.kevinj at gmail.com](mailto:sullivan.kevinj@gmail.com).

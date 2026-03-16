@@ -8,19 +8,47 @@ import Mathlib.Tactic.Ring
 
 ## Structural recursion
 
-A function defined by structural recursion on an inductive type makes a
-recursive call only on *subterms* of the input.  Because inductive types
-are always finite, each recursive call receives a strictly smaller argument.
-Lean verifies this automatically — no termination argument is needed for
-structural recursion.
+Here is a way to think about recursion that is the *inverse* of the usual
+story.
 
-The key insight: if you can pattern-match the input and recurse only into
-the pieces revealed by the match, Lean can see the recursion terminates.
+The usual story: "the function calls itself on a smaller input until it
+reaches a base case."  That describes *execution*, but it does not explain
+*why the definition gives a correct answer for every input*.
+
+The better story starts from what you actually need in order to define a
+function on the natural numbers:
+
+1. **A base case.** You supply the answer for input `0` directly.
+2. **A step function.** You supply a rule that, *given any input `n` and the
+   answer for `n`*, produces the answer for `n + 1`.
+
+Those two ingredients are enough to determine the answer for *every* natural
+number: start with the answer for `0`, apply the step once to get the answer
+for `1`, again to get the answer for `2`, and so on.  However large the input,
+you can always reach it by iterating the step enough times from the base.
+
+This is the content of the *principle of recursion* (or primitive recursion)
+on the natural numbers.  The recursive definition in Lean is just a compact
+way of writing down these two ingredients:
+
+- The `| 0 => ...` clause supplies the base-case answer.
+- The `| n + 1 => ...` clause supplies the step function.  The right-hand side
+  may refer to `n` (the previous input) and to the recursive call `f n` (the
+  answer for `n`).  That recursive call is not "calling itself" in some
+  mysterious way — it is simply *using the assumption that the answer for `n`
+  is already in hand*, which the step function is entitled to assume by
+  construction.
+
+Lean can verify termination automatically for structural recursion because
+it can see that the step clause only ever asks for the answer at `n`, not at
+any larger value.
+
 ```lean
 namespace Week03
 ```
 
 ## 3.1  Factorial — direct recursive definition
+
 ```lean
 def factorial : Nat → Nat
   | 0     => 1
@@ -34,29 +62,28 @@ example : factorial 0 = 1   := rfl
 example : factorial 5 = 120 := rfl
 ```
 
-**Evaluation.**  Recursive functions evaluate by *unfolding* the matching
-clause and substituting, then evaluating the result.  Here is `factorial 3`
-evaluated step by step.  Each step applies one *reduction rule*:
+**Reading the definition.**  Apply the two-ingredient view to `factorial`:
+
+- **Base case** (`| 0 => 1`): the answer for `0` is `1`.
+- **Step** (`| n + 1 => (n + 1) * factorial n`): given input `n + 1`, and
+  given that the answer for `n` is already `factorial n`, multiply them.
+
+To see why this gives the right answer for `3`, iterate the step up from the base:
 
 ```
-factorial 3
-  ↝  (3 + 1 - 1 + 1) * factorial 2       -- second clause: n = 2, so n+1 = 3
-  ↝  3 * factorial 2                       -- arithmetic
-  ↝  3 * (2 * factorial 1)                 -- second clause: n = 1
-  ↝  3 * (2 * (1 * factorial 0))           -- second clause: n = 0
-  ↝  3 * (2 * (1 * 1))                     -- first clause: factorial 0 = 1
-  ↝  3 * (2 * 1)                           -- arithmetic
-  ↝  3 * 2                                 -- arithmetic
-  ↝  6                                     -- arithmetic (normal form)
+factorial 0 = 1                              -- base case
+factorial 1 = 1 * factorial 0 = 1 * 1 = 1   -- step: n = 0, answer for 0 = 1
+factorial 2 = 2 * factorial 1 = 2 * 1 = 2   -- step: n = 1, answer for 1 = 1
+factorial 3 = 3 * factorial 2 = 3 * 2 = 6   -- step: n = 2, answer for 2 = 2
 ```
 
-The first clause (`| 0 => 1`) is the *base case*: no recursive call, and
-evaluation terminates immediately.  The second clause reduces the problem
-to a strictly smaller one (`factorial n` where `n < n + 1`), guaranteeing
-that evaluation must eventually reach the base case.
+Each line uses the answer from the line above — exactly the "answer for `n`
+already in hand" that the step clause is entitled to assume.
 
-This is why Lean can verify termination automatically: each reduction step
-produces a structurally smaller argument.
+Lean's evaluator runs this in the opposite order — it unfolds `factorial 3`
+toward the base case and assembles the result on the way back up.  Either
+direction produces `6`.  The inductive framing explains *why* there is
+a well-defined answer for every input, not just how to compute it.
 
 ## 3.2  Tail recursion and accumulators
 
@@ -67,6 +94,7 @@ base case.  A tail-recursive version accumulates the product on the way
 Tail-recursive functions are important in practice because they run in
 constant stack space.  They can also have different proofs of correctness,
 which is why we need to state the relationship between the two versions.
+
 ```lean
 def factorialAcc : Nat → Nat → Nat
   | 0,     acc => acc
@@ -96,6 +124,7 @@ is a term — a recursive function on `n` whose type is the specification.
 
 Read the term as: "by induction on n; the base case is a calculation;
 the step uses the inductive hypothesis for n with a different accumulator."
+
 ```lean
 -- Provided term-mode proof.  Read it; do not reproduce it.
 theorem factorialAcc_spec : ∀ (n acc : Nat),
@@ -121,6 +150,7 @@ Lean requires an explicit *termination measure*: a quantity that strictly
 decreases at each recursive call with respect to some well-founded relation.
 
 The `termination_by` clause names the measure.
+
 ```lean
 -- Euclidean GCD — not structurally recursive on either argument,
 -- but decreases on the second argument at each step.
@@ -182,6 +212,7 @@ A specification for a recursive function is almost always a ∀ proposition:
 "for all inputs, the output satisfies this condition."
 
 Practice reading these:
+
 ```lean
 -- "For all n, factorial n is positive"
 -- You should be able to read and understand the proposition.
@@ -220,7 +251,7 @@ theorem factorial_mono : ∀ n : Nat, factorial n ≤ factorial (n + 1) :=
 
 5. State the specification for `gcd` as two ∀ propositions expressing
    that it divides both arguments.
+
 ```lean
 end Week03
 ```
-
