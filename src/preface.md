@@ -101,15 +101,12 @@ more graduated approach.
 *Structure and Interpretation of Computer Programs*, 2nd ed.
 MIT Press, 1996. [mitpress.mit.edu](https://mitpress.mit.edu/9780262510875/)
 
-A more distant reference point — noted here to clarify what this course is *not* — is
+Another more distant reference point — noted here to clarify what this course is *not* — is
 **Software Foundations** by Benjamin C. Pierce et al.[^sf]  Software Foundations is
-the landmark text for machine-checked reasoning in a proof assistant (Coq), and its
-influence on the field is immense.  It is not, however, an introductory programming
-course: it is pitched at the graduate level, it presupposes fluency in the very
+the landmark text for machine-checked reasoning in a proof assistant (Coq).  It is not, however, an introductory programming
+course: it is pitched at the graduate level, it presupposes substantial fluency in the very
 functional-programming concepts this course teaches, and proof construction is its
-central activity.  This course can be understood as the missing prerequisite — the
-CS1 that prepares students to engage with Software Foundations (or its Lean
-equivalents) in a subsequent course.
+central activity.  This course can be understood as the missing prerequisite — the CS1 that prepares students to engage with Software Foundations (or its Lean equivalents) in a subsequent course.
 
 [^sf]: Pierce, B. C., et al.
 *Software Foundations*, vol. 1: Logical Foundations.
@@ -123,11 +120,9 @@ course proposal, to our knowledge, include the following:
 1. **Machine-checked specifications at CS1 level.**  Existing courses that
    achieve machine-checked correctness — **Software Foundations** (Pierce et al.)
    and **Programming Language Foundations in Agda** (PLFA) — do so at the
-   graduate level.  They assume familiarity with most of the programming
-   concepts this course teaches, and both place proof construction at the
-   center of the curriculum.  This course achieves the same correctness
+   graduate level.  This course achieves the same immediate correctness
    guarantee at CS1 level by automating proof construction wherever possible,
-   so that specification — not proof — is the primary skill.
+   so that *specification — not proof — is the primary logical focus*.
 
 2. **Decidability as explicit curriculum content.**  The question of *when*
    automation works — and why it provably cannot work for certain propositions
@@ -178,5 +173,6 @@ good question to address.
 
 ## Contact
 
-If you're interested in commenting on, evolving, revising, using these materials, 
-etc., please feel free to drop a line. My personal email, sullivan.kevinj@gmail.com.
+If you're interested in commenting on, evolving, revising, using these materials,
+etc., please feel free to drop a line. My personal email,
+[sullivan.kevinj@gmail.com](mailto:sullivan.kevinj@gmail.com).
