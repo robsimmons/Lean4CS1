@@ -1,4 +1,4 @@
-# A First Course in Typed Functional Programming — Lean 4 Edition
+# CS1: Programming, Certified
 
 A 14-week literate Lean 4 curriculum introducing typed functional programming
 through the lens of the Curry-Howard correspondence.  Every file compiles
