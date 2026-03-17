@@ -10,3 +10,6 @@ require mathlib from git
 @[default_target]
 lean_lib «FPCourse» where
   globs := #[.andSubmodules `FPCourse]
+
+lean_lib «Distillate» where
+  globs := #[.andSubmodules `Distillate]

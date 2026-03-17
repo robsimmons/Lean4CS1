@@ -15,7 +15,7 @@ to research and high-criticality settings crumbles.
 As costs drop, demand soars.  Software that carries a machine-checked
 correctness proof — certified software — is on the verge of becoming a
 mainstream engineering expectation. Attention can finally shift to where
-it's needed: understanding what to specify and how to specify it in the
+it's needed: **understanding** what to specify and how to specify it in the
 first place.
 
 The technology that makes this possible is the constructive logic proof
