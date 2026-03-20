@@ -1,15 +1,30 @@
--- FPCourse/Unit1/Week00_AlgebraicTypes.lean
-import Mathlib.Logic.Basic
-import Mathlib.Data.Bool.Basic
+import VersoManual
 
-/-! @@@
-# Week 0: Algebraic Types — The Language of Computation and Logic
+open Verso Doc
+open Verso.Genre Manual
+open Verso.Genre.Manual.InlineLean
 
-## One language. Two readings.
+namespace Week00
+variable (α β : Type)
+variable (P Q : Prop)
+variable (a : α)
+variable (b : β)
+variable (h₁ : P)
+variable (h₂ : Q)
+variable (p : α × β)
+variable (h : P ∧ Q)
 
-A *type* classifies values.  `Nat` classifies the natural numbers.
-`Bool` classifies `true` and `false`.  When you encounter a type, ask:
-*what values of this type can exist?*
+
+#doc (Manual) "Week 0: Algebraic Types — The Language of Computation and Logic" =>
+
+# One language. Two readings.
+%%%
+number := false
+%%%
+
+A _type_ classifies values.  {name}`Nat` classifies the natural numbers.
+{name}`Bool` classifies {lean}`true` and {lean}`false`.  When you encounter a type, ask:
+_what values of this type can exist?_
 
 This course is organized around six kinds of types.  Every data structure
 in computing is built from some combination of these six.  And every
@@ -17,38 +32,56 @@ proposition in propositional logic is expressed by the same six constructors.
 
 This is not an analogy.  It is the same language, read two ways.
 
-| Constructor | Computational reading | Logical reading |
-|---|---|---|
-| Basic type | Atomic data | Atomic proposition |
-| `α → β` | Function from α to β | α implies β |
-| `α × β` | Pair: α bundled with β | Conjunction: α AND β |
-| `α ⊕ β` | Choice: α OR β (as data) | Disjunction: α OR β (as claim) |
-| `Empty` | Uninhabitable — nothing exists here | Falsity — no proof exists |
-| `α → Empty` | α itself is uninhabitable | Negation: α is contradictory |
+:::table
+*
+ * Constructor
+ * Computational reading
+ * Logical reading
+*
+ * Basic type
+ * Atomic data
+ * Atomic proposition
+*
+ * {lean}`α → β`
+ * Function from `α` to `β`
+ * Implication: $`α → β`
+*
+ * {lean}`α × β`
+ * Pair: α bundled with β
+ * Conjunction: $`α \wedge β`
+*
+ * {lean}`α ⊕ β`
+ * Choice: α OR β (as data)
+ * Disjunction: $`α \vee β`
+*
+ * {lean}`Empty`
+ * Uninhabitable — nothing exists here
+ * Falsity $`\bot` — no proof exists
+*
+ * {lean}`α → Empty`
+ * α itself is uninhabitable
+ * Negation $`\neg α`: $`α` is contradictory
+:::
 
 By the end of this week you will have seen all six in both readings.
-You will have one vocabulary — *types and their inhabitants* — that
+You will have one vocabulary — _types and their inhabitants_ — that
 covers both.  You do not need two languages.  You are learning one.
-@@@ -/
 
-namespace Week00
+# Basic Types: the atoms of computation and logic
 
-/-! @@@
-## 0.1  Basic Types: the atoms of computation and logic
-
-**Why basic types?**  Before you can build anything, you need raw
+*Why basic types?* Before you can build anything, you need raw
 material — types that are not constructed from anything else.  Basic
 types are your atoms: given to you, not derived.
 
-You encounter them by name: `Nat`, `Bool`, `String`.  Their values
+You encounter them by name: {name}`Nat`, {name}`Bool`, {name}`String`.  Their values
 are listed explicitly and cannot be broken down further.
-@@@ -/
 
--- Nat: the type of natural numbers.  Values: 0, 1, 2, 3, ...
+```lean
+-- Nat: the type of natural numbers.  Values: 0, 1, 2...
 #check (0 : Nat)
 #check (42 : Nat)
-#eval 2 + 3        -- 5
-#eval 10 - 3       -- 7 (natural number subtraction, floors at 0)
+#eval 2 + 3   -- 5
+#eval 10 - 3  -- 7 (natural number subtraction, floors at 0)
 
 -- Bool: two values.
 #check (true : Bool)
@@ -58,11 +91,11 @@ are listed explicitly and cannot be broken down further.
 
 -- String: sequences of characters.
 #check ("hello" : String)
-#eval "hello" ++ ", world"   -- "hello, world"
-#eval "hello".length          -- 5
+#eval "hello" ++ ", world" -- "hello, world"
+#eval "hello".length       -- 5
+```
 
-/-! @@@
-**The Lean notional machine.**  Think of Lean as a machine with one job:
+*The Lean notional machine.*  Think of Lean as a machine with one job:
 given an expression, apply reduction rules one step at a time until no
 further reduction is possible.  The irreducible result is the *normal form*.
 
@@ -72,52 +105,91 @@ further reduction is possible.  The irreducible result is the *normal form*.
 ```
 
 Every `#eval` you write invokes this machine.  Every `by decide` runs
-it on a decision procedure.  Every `rfl` succeeds because both sides
+it on a decision procedure.  Every {name}`rfl` succeeds because both sides
 of the equation reach the *same* normal form.
 
 Each `#eval` above is a chain of named reductions:
 
-| Expression | Reduction steps | Normal form |
-|------------|----------------|-------------|
-| `2 + 3` | one arithmetic step | `5` |
-| `10 - 3` | one arithmetic step | `7` |
-| `true && false` | `true && b ↝ b` (definition of `&&`) | `false` |
-| `"hello" ++ ", world"` | string concat definition | `"hello, world"` |
-| `"hello".length` | list length definition | `5` |
+:::table
+*
+ * Expression
+ * Reduction steps
+ * Normal form
+*
+ * {lean}`2 + 3`
+ * one arithmetic step
+ * {lean}`5`
+*
+ * {lean}`10 - 3`
+ * one arithmetic step
+ * {lean}`7`
+*
+ * {lean}`true && false`
+ * `true && b ↝ b` (definition of `&&`)
+ * {lean}`false`
+*
+ * {lean}`"hello" ++ ", world"`
+ * string concat definition
+ * {lean}`"hello, world"`
+*
+ * {lean}`"hello".length`
+ * list length definition
+ * {lean}`5`
+:::
 
-The symbol `↝` means *reduces to in one step*.  You will see it used
+The symbol `↝` means _reduces to in one step_.  You will see it used
 throughout this course whenever a specific reduction rule is being named.
 
-`#check e` inspects the *type* of `e` without evaluating it.  Types are
+`#check e` inspects the _type_ of `e` without evaluating it.  Types are
 checked statically at elaboration time; values are produced dynamically
 at evaluation time.  Both happen before you see any output.
 
-An *expression* is any piece of Lean text that has a type and can be
+An _expression_ is any piece of Lean text that has a type and can be
 evaluated to a normal form.
 
-### The same question, two registers
+## The same question, two registers
 
 We can ask of any type: *what are its inhabitants?*
 
-| Type | Sample inhabitants |
-|------|--------------------|
-| `Nat` | `0`, `1`, `2`, `42` |
-| `Bool` | `true`, `false` |
-| `String` | `""`, `"hi"`, `"hello, world"` |
+:::table
+*
+ * Type
+ * Sample inhabitants
+*
+ * {lean}`Nat`
+ * {lean}`0`, {lean}`1`, {lean}`2`, {lean}`42`
+*
+ * {lean}`Bool`
+ * {lean}`true`, {lean}`false`
+*
+ * {lean}`String`
+ * {lean}`""`, {lean}`"hi"`, {lean}`"hello, world"`
+:::
 
-We can ask the identical question of *propositions*:
+We can ask the identical question of _propositions_:
 
-| Proposition (type) | Inhabitants |
-|--------------------|-------------|
-| `1 + 1 = 2` | exactly one: the proof `rfl` |
-| `1 + 1 = 5` | none — it is false |
-| `True` | exactly one: `True.intro` |
-| `False` | none — it is false |
+:::table
+*
+ * Proposition (type)
+ * Inhabitants
+*
+ * {lean}`1 + 1 = 2`
+ * exactly one: the proof {lean}`rfl`
+*
+ * {lean}`1 + 1 = 5`
+ * none — it is false
+*
+ * {lean}`True`
+ * exactly one: {name}`True.intro`
+*
+ * {lean}`False`
+ * none — it is false
+:::
 
-A proposition with at least one inhabitant is *true*.  A proposition
-with no inhabitant is *false*.  In Lean, propositions ARE types.
-@@@ -/
+A proposition with at least one inhabitant is _true_.  A proposition
+with no inhabitant is _false_.  In Lean, propositions ARE types.
 
+```lean
 -- Proofs are terms.  `rfl` inhabits `1 + 1 = 2` the way `42` inhabits `Nat`.
 example : 1 + 1 = 2 := rfl   -- Evaluation: 1+1 ↝ 2, same as the right side
 example : True      := True.intro
@@ -125,32 +197,30 @@ example : True      := True.intro
 -- `decide` evaluates a decision procedure to produce a proof automatically.
 example : 7 * 6 = 42       := by decide  -- Evaluation: 7*6 ↝ 42 ✓
 example : 2 + 2 ≠ 5        := by decide  -- Evaluation: 2+2 ↝ 4 ≠ 5 ✓
-example : 100 < 200         := by decide  -- Evaluation: comparison ↝ true ✓
+example : 100 < 200        := by decide  -- Evaluation: comparison ↝ true ✓
 
 -- `#check` works on proofs too.
 #check (rfl : 1 + 1 = 2)    -- the type IS the proposition
 #check (True.intro : True)
+```
 
-/-! @@@
-**Evaluation.**  `rfl` proves `a = b` when `a` and `b` *evaluate to the
-same normal form*.  `1 + 1 = 2` holds by `rfl` because both sides reduce
+*Evaluation.*  {lean}`rfl` proves `a = b` when `a` and `b` _evaluate to the
+same normal form_.  {lean}`1 + 1 = 2` holds by {lean}`rfl` because both sides reduce
 to `2` — the equality is *definitional*, certified by computation.
 
-**Evaluation.**  `decide` works by evaluating the *decision procedure*
-for the proposition.  For `7 * 6 = 42`, Lean evaluates `7 * 6` to `42`,
+*Evaluation.*  {tactic}`decide` works by evaluating the _decision procedure_
+for the proposition.  For {lean}`7 * 6 = 42`, Lean evaluates {lean}`7 * 6` to {lean}`42`,
 confirms both sides are the same, and constructs the proof automatically.
-If evaluation had produced `false`, the file would not compile — the
+If evaluation had produced {lean}`false`, the file would not compile — the
 proof term would be absent, and the type would be uninhabited.
 
-`decide` can only handle propositions for which evaluation terminates —
-*decidable* propositions.  Concrete arithmetic is decidable; universal
+{tactic}`decide` can only handle propositions for which evaluation terminates —
+_decidable_ propositions.  Concrete arithmetic is decidable; universal
 claims over all natural numbers are not.  We return to this in Week 7.
-@@@ -/
 
-/-! @@@
-## 0.2  Function Types: `α → β`
+# Function Types: {lean}`α → β`
 
-**Why function types?**  Every transformation in programming — mapping,
+*Why function types?*  Every transformation in programming — mapping,
 filtering, converting, composing — is a function.  Functions are also
 how you prove implications: a proof of `P → Q` is literally a function
 from proofs of `P` to proofs of `Q`.  Mastering `→` unlocks both.
@@ -166,15 +236,15 @@ from proofs of `P` to proofs of `Q`.  Mastering `→` unlocks both.
   Use:    f a            (apply it to an argument; β-reduction fires)
 ```
 
-The arrow type `α → β` is the type of **functions** from `α` to `β`.
-A value of type `α → β` takes any input of type `α` and produces an
-output of type `β`.
+The arrow type {lean}`α → β` is the type of _functions_ from {lean}`α` to {lean}`β`.
+A value of type {lean}`α → β` takes any input of type {lean}`α` and produces an
+output of type {lean}`β`.
 
 Functions are the most fundamental type constructor.  Every other
 construct — recursion, type classes, proofs — ultimately reduces to
 functions.
-@@@ -/
 
+```lean
 -- Defining functions with `def`:
 def double  : Nat → Nat    := fun n => n * 2
 def isZero  : Nat → Bool   := fun n => n == 0
@@ -204,23 +274,23 @@ def max' (a b : Nat) : Nat := if a ≥ b then a else b
 
 #eval max' 5 3         -- 5
 #eval max' 2 8         -- 8
+```
 
-/-! @@@
-### The logical reading: implication
+## The logical reading: implication
 
-When `P` and `Q` are propositions, `P → Q` is the type of proofs that
-**P implies Q**.  A proof of `P → Q` is a *function*: given any proof
-of `P`, it returns a proof of `Q`.
+When $`P` and $`Q` are propositions, $`P → Q` is the type of proofs that
+*P implies Q*.  A proof of $`P → Q` is a _function_: given any proof
+of $`P`, it returns a proof of $`Q`.
 
 This is not a metaphor.  The same keyword (`fun`), the same syntax
-(`fun h => ...`), the same application rule — a proof of `P → Q`
+(`fun h => ...`), the same application rule — a proof of {lean}`P → Q`
 literally IS a function.
 
-**The identity function is simultaneously**:
-- *Computational*: given any value, return it.
-- *Logical*: if P holds then P holds (reflexivity of implication).
-@@@ -/
+*The identity function is simultaneously*:
+- _Computational_: given any value, return it.
+- _Logical_: if P holds then P holds (reflexivity of implication).
 
+```lean
 -- Computational: identity function for data.
 def myId (a : α) : α := a
 #eval myId 42       -- 42
@@ -243,11 +313,11 @@ def compose (f : β → γ) (g : α → β) : α → γ := fun a => f (g a)
 
 -- Their structures are identical.  The only difference is that
 -- P, Q, R range over Prop instead of Type.
+```
 
-/-! @@@
-## 0.3  Product Types: `α × β`
+# Product Types: {lean}`α × β`
 
-**Why product types?**  Real programs combine data: a point has an x
+*Why product types?*  Real programs combine data: a point has an x
 coordinate AND a y coordinate; a database record has a name AND an age
 AND an address.  Whenever you need to carry multiple pieces of data
 simultaneously, you reach for a product.
@@ -264,14 +334,14 @@ simultaneously, you reach for a product.
   Use:    p.1, p.2       (projections; ι-reduction fires)
 ```
 
-A **product type** `α × β` bundles a value of type `α` with a value of
-type `β`.  To *build* a product you must supply BOTH components.  To
-*use* a product you project out whichever component you need.
+A *product type* `α × β` bundles a value of type `α` with a value of
+type `β`.  To _build_ a product you must supply BOTH components.  To
+_use_ a product you project out whichever component you need.
 
-Products are how data is *aggregated*: a 2D point is an x AND a y;
+Products are how data is _aggregated_: a 2D point is an x AND a y;
 a person record is a name AND an age AND a city.
-@@@ -/
 
+```lean
 -- Building and projecting products:
 def myPair : Nat × Bool := (7, true)
 #eval myPair.1    -- 7       (first component)
@@ -295,24 +365,36 @@ def swap (p : α × β) : β × α := (p.2, p.1)
 def hypotenuse (legs : Float × Float) : Float :=
   Float.sqrt (legs.1 ^ 2 + legs.2 ^ 2)
 #eval hypotenuse (3.0, 4.0)   -- 5.0
+```
 
-/-! @@@
-### The logical reading: conjunction (AND)
+## The logical reading: conjunction (AND)
 
-In logic, `P ∧ Q` holds when **both** P holds **and** Q holds.  A proof
-of `P ∧ Q` is a pair: a proof of P together with a proof of Q.
+In logic, $`P ∧ Q` holds when *both* P holds *and* Q holds.  A proof
+of $`P ∧ Q` is a pair: a proof of $`P` together with a proof of $`Q`.
 
 `And` in Lean is literally a structure with two fields.  It IS a product
 type, specialized to the case where the components are proofs.
 
-| Product | And (conjunction) |
-|---------|--------------------|
-| `α × β` | `P ∧ Q` |
-| `(a, b) : α × β` | `⟨h₁, h₂⟩ : P ∧ Q` |
-| `p.1 : α` | `h.left : P` |
-| `p.2 : β` | `h.right : Q` |
-@@@ -/
 
+:::table
+*
+ * Product
+ * And (conjunction)
+*
+ * {lean}`α × β`
+ * {lean}`P ∧ Q`
+*
+ * {lean}`((a, b) : α × β)`
+ * {lean}`(⟨h₁, h₂⟩ : P ∧ Q)`
+*
+ * {lean}`(p.1 : α)`
+ * {lean}`(h.left : P)`
+*
+ * {lean}`(p.2 : β)`
+ * {lean}`(h.right : Q)`
+:::
+
+```lean
 -- Proving a conjunction: supply both halves.
 example : 2 < 3 ∧ 3 < 4 := ⟨by decide, by decide⟩
 
@@ -332,11 +414,11 @@ theorem and_comm' (h : P ∧ Q) : Q ∧ P :=
 
 -- Three-way conjunction:
 example : 1 < 2 ∧ 2 < 3 ∧ 3 < 4 := by decide
+```
 
-/-! @@@
-## 0.4  Sum Types: `Sum α β` (written `α ⊕ β`)
+# Sum Types: {lean}`Sum α β` (written {lean}`α ⊕ β`)
 
-**Why sum types?**  Real programs handle alternatives: a network request
+*Why sum types?*  Real programs handle alternatives: a network request
 either succeeds OR fails; a command is either add OR remove OR update;
 a shape is a circle OR a rectangle OR a triangle.  Sums capture this
 structure in the type — and pattern-matching forces you to handle every
@@ -355,15 +437,15 @@ case.
   Use:    match s with | Sum.inl a => ... | Sum.inr b => ...
 ```
 
-A **sum type** `α ⊕ β` carries either a value of type `α` **or** a
-value of type `β`.  It represents a *choice* or *variant*: you get one
+A *sum type* `α ⊕ β` carries either a value of type `α` *or* a
+value of type `β`.  It represents a _choice_ or _variant_: you get one
 kind of thing or the other, and the tag `inl`/`inr` tells you which.
 
-Sums are how programs handle **alternatives**: a result is either a
+Sums are how programs handle *alternatives*: a result is either a
 successful value or an error; a shape is a circle or a rectangle or a
 triangle.
-@@@ -/
 
+```lean
 -- Sum has two constructors: inl (left) and inr (right).
 def aNum  : Nat ⊕ String := Sum.inl 42
 def aStr  : Nat ⊕ String := Sum.inr "error"
@@ -394,27 +476,47 @@ def showResult (r : Option Nat) : String :=
 
 #eval showResult (safeDivide 10 2)    -- "result: 5"
 #eval showResult (safeDivide 10 0)    -- "no result"
+```
 
-/-! @@@
-### The logical reading: disjunction (OR)
+## The logical reading: disjunction (OR)
 
-In logic, `P ∨ Q` holds when **at least one** of P or Q holds.  A proof
+In logic, `P ∨ Q` holds when *at least one* of P or Q holds.  A proof
 of `P ∨ Q` is either a proof of P (tagged `Or.inl`) or a proof of Q
 (tagged `Or.inr`).
 
 `Or` IS a sum type, specialized to propositions.
 
-| Sum | Or (disjunction) |
-|-----|------------------|
-| `α ⊕ β` | `P ∨ Q` |
-| `Sum.inl (a : α)` | `Or.inl (h : P)` |
-| `Sum.inr (b : β)` | `Or.inr (h : Q)` |
-| `match s with \| inl a => ... \| inr b => ...` | `match h with \| inl h => ... \| inr h => ...` |
+:::table
+*
+ * Sum
+ * Or (disjunction)
+*
+ * {lean}`α ⊕ β`
+ * {lean}`P ∨ Q`
+*
+ * {lean}`Sum.inl (a : α)`
+ * {lean}`Or.inl (h₁ : P)`
+*
+ * {lean}`Sum.inr (b : β)`
+ * {lean}`Or.inr (h₂ : Q)`
+*
+ * ```
+   match s with
+    | inl a => ...
+    | inr b => ...
+   ```
+ * ```
+   match h with
+    | inl h => ...
+    | inr h => ...
+   ```
+:::
 
-To *prove* a disjunction, pick one side and prove it.
-To *use* a disjunction, case-split on which side holds (just like `match`).
-@@@ -/
 
+To _prove_ a disjunction, pick one side and prove it.
+To _use_ a disjunction, case-split on which side holds (just like `match`).
+
+```lean
 -- Proving a disjunction: choose a side.
 example : 1 = 1 ∨ 1 = 2 := Or.inl rfl      -- left side
 example : 1 = 2 ∨ 1 = 1 := Or.inr rfl      -- right side
@@ -429,29 +531,29 @@ theorem or_comm' (h : P ∨ Q) : Q ∨ P :=
 
 -- Disjunction from an implication:
 theorem or_weaken (h : P) : P ∨ Q := Or.inl h
+```
 
-/-! @@@
-## 0.5  The Empty Type: `Empty` and `False`
+# The Empty Type: {lean}`Empty` and {lean}`False`
 
-**Why an empty type?**  Sometimes a situation is genuinely impossible:
+*Why an empty type?*  Sometimes a situation is genuinely impossible:
 a division by zero that your types have already ruled out; a branch of
 a proof that leads to contradiction.  When you can prove a situation is
 impossible, the empty type lets you discharge it cleanly — the type
 system certifies the branch is unreachable.
 
-The **empty type** has no constructors and no values.  It is impossible
+The *empty type* has no constructors and no values.  It is impossible
 to produce a term of this type.
 
-In computation: `Empty` represents a branch that can never be reached.
-A function returning `Empty` can never actually return.  Pattern-matching
-on a value of type `Empty` needs **zero** branches — vacuously complete.
+In computation: {lean}`Empty` represents a branch that can never be reached.
+A function returning {lean}`Empty` can never actually return.  Pattern-matching
+on a value of type {lean}`Empty` needs *zero* branches — vacuously complete.
 
-In logic: `False` is the proposition with no proof.  A proposition that
-cannot be proved is *false*.
+In logic: {lean}`False` is the proposition with no proof.  A proposition that
+cannot be proved is _false_.
 
-`Empty : Type` and `False : Prop` are the same idea in two universes.
-@@@ -/
+{lean}`(Empty : Type)` and {lean}`(False : Prop)` are the same idea in two universes.
 
+```lean
 -- `Empty` has no constructors — you cannot produce a value of it.
 -- But you CAN write a function FROM Empty (with no cases to handle):
 def fromEmpty (e : Empty) : α := nomatch e
@@ -467,48 +569,46 @@ example (h : 2 + 2 = 5) : "pigs fly" = "pigs fly" :=
 -- `absurd : P → ¬P → Q`
 -- Given a proof of P and a proof of ¬P, produce anything.
 -- This is the logical short-circuit: contradiction → done.
+```
 
-/-! @@@
 The power of the empty type: every impossible case reduces to one.
 
 When your program reaches a state that "cannot happen," the right tool
-is to prove it is `False` and use `False.elim` (or `absurd`) to discharge
+is to prove it is {lean}`False` and use {lean}`False.elim` (or {lean}`absurd`) to discharge
 the goal.  The program does not crash; it never reaches that branch at all,
 because the type system certified the branch is unreachable.
 
 `nomatch e` is Lean's syntax for pattern-matching on a value of a type
 with no constructors: the match is exhaustive with zero branches.
-@@@ -/
 
-/-! @@@
-## 0.6  Functions to Empty: `α → Empty` and `¬P`
+# Functions to Empty: {lean}`α → Empty` and {lean}`¬P`
 
-**Why functions to empty?**  Ruling out a case is as important as
+*Why functions to empty?*  Ruling out a case is as important as
 handling one.  When you write a precondition `h : n ≠ 0`, you are
 carrying a function `(n = 0) → False` — proof that passing in a
 zero is impossible.  Negation is not a primitive added to the language;
 it falls out of the function arrow and the empty type that you already
 have.
 
-The most surprising type constructor: **a function whose codomain is
-the empty type**.
+The most surprising type constructor: *a function whose codomain is
+the empty type*.
 
-A value of type `α → Empty` is a function that, if given an `α`, would
-produce an `Empty`.  But `Empty` has no values — so such a function can
-never complete its job.  This means: if such a function *exists*, then
-`α` itself must have had no values to pass in.  The function *proves*
-that `α` is uninhabited.
+A value of type {lean}`α → Empty` is a function that, if given an {lean}`α`, would
+produce an {lean}`Empty`.  But {lean}`Empty` has no values — so such a function can
+never complete its job.  This means: if such a function _exists_, then
+{lean}`α` itself must have had no values to pass in.  The function _proves_
+that {lean}`α` is uninhabited.
 
-In computation: `α → Empty` certifies that `α` has no values.
+In computation: {lean}`α → Empty` certifies that {lean}`α` has no values.
 
-In logic: `¬P` is **defined** as `P → False`.  A proof of `¬P` is a
-function: given any proof of `P`, produce a proof of `False`.  Since
-`False` has no proofs, the function can never fire — which means P has
-no proofs, i.e., P is false.
+In logic: {lean}`¬P` is *defined* as {lean}`P → False`.  A proof of {lean}`¬P` is a
+function: given any proof of {lean}`P`, produce a proof of {lean}`False`.  Since
+{lean}`False` has no proofs, the function can never fire — which means {lean}`P` has
+no proofs, i.e., {lean}`P` is false.
 
-Negation is not a primitive.  It IS the function arrow, aimed at `False`.
-@@@ -/
+Negation is not a primitive.  It IS the function arrow, aimed at {lean}`False`.
 
+```lean
 -- ¬P unfolds to P → False:
 #print Not   -- def Not (a : Prop) : Prop := a → False
 
@@ -536,34 +636,59 @@ theorem not_not_intro (h : P) : ¬¬P :=
 -- Example: ¬(P ∧ ¬P) — no proposition and its negation can both hold.
 theorem not_and_not (h : P ∧ ¬P) : False :=
   h.right h.left      -- apply ¬P (= h.right) to P (= h.left)
+```
 
-/-! @@@
-## 0.7  The Six Constructors Together
+# The Six Constructors Together
+%%%
+tag := "six-constructors"
+%%%
 
 Here is the complete picture.  Every type you will write in this course
 is built from some combination of these six.  Every proposition you will
 reason about is expressed by some combination of these six.
 
-| Constructor | Computational | Logical |
-|-------------|---------------|---------|
-| Basic type | `Nat`, `Bool`, `String`, ... | Atomic proposition `P : Prop` |
-| `α → β` | Function: transform α into β | Implication: α proves β |
-| `α × β` | Product: carry BOTH α and β | Conjunction: BOTH α and β |
-| `α ⊕ β` | Sum: carry ONE OF α or β | Disjunction: ONE OF α or β |
-| `Empty` / `False` | No value exists | No proof exists |
-| `α → Empty` / `¬α` | α is uninhabited | α is contradictory |
+:::table
+*
+ * Constructor
+ * Computational
+ * Logical
+*
+ * Basic type
+ * {lean}`Nat`, {lean}`Bool`, {lean}`String`, …
+ * Atomic proposition {lean}`(P : Prop)`
+*
+ * {lean}`α → β`
+ * Function transform `α` into `β`
+ * Implication: Implication: α proves β
+*
+ * {lean}`α × β`
+ * Product: carry BOTH α and β
+ * Conjunction: BOTH α and β
+*
+ * {lean}`α ⊕ β`
+ * Sum: carry ONE OF α OR β
+ * Disjunction: ONE OF α or β
+*
+ * {lean}`Empty` / {lean}`False`
+ * No value exists
+ * No proof exists
+*
+ * {lean}`α → Empty` / {lean}`¬P`
+ * α is uninhabited
+ * α is contradictory
+:::
+
 
 The question "what inhabits this type?" has two flavors:
-- Computational types (`Type`): inhabitants are *data*.
-- Logical types (`Prop`): inhabitants are *proofs*.
+- Computational types (`Type`): inhabitants are _data_.
+- Logical types (`Prop`): inhabitants are _proofs_.
 
-But the **constructors are shared**.  Products bundle data AND proofs
+But the *constructors are shared*.  Products bundle data AND proofs
 the same way.  Sums tag data AND proofs the same way.  Functions
 transform data AND convert proofs the same way.  The empty type
 represents impossible data AND impossible proofs.
 
-@@@ -/
-
+```lean
 -- All six constructors demonstrated side by side:
 
 -- Product / And
@@ -583,51 +708,54 @@ def proofNeg  : ¬ (1 = 2) := by decide
 
 -- Empty type: a function from Empty returns anything
 def fromImpossible (e : Empty) : Nat × Bool × String := nomatch e
+```
 
-/-! @@@
-## 0.8  Challenges in programming with algebraic types
+# Challenges in programming with algebraic types
 
 Understanding the six constructors is not yet fluency.  The challenge is
-knowing **which constructor fits each situation**.
+knowing *which constructor fits each situation*.
 
 Here are the fundamental design questions:
 
-**Use a product when** you need to carry multiple pieces of data at once.
+*Use a product when* you need to carry multiple pieces of data at once.
 A point is x AND y.  A function's return type is a product when it returns
 two things.  A precondition bundled with a return value is a product of
 data and proof.
 
-**Use a sum when** data has multiple, mutually exclusive forms.  An API
+*Use a sum when* data has multiple, mutually exclusive forms.  An API
 result is success OR error.  A command is add OR remove OR update.
 Pattern-matching IS elimination of a sum — you must handle every case.
 
-**Use a function when** you want to defer or parameterize computation.
+*Use a function when* you want to defer or parameterize computation.
 A callback, a comparator, a predicate — these are function-type arguments.
 
-**Use negation (function to False) when** you need to *rule out* a case.
+*Use negation (function to False) when* you need to *rule out* a case.
 A precondition `h : x ≠ 0` is `(x = 0) → False`.  It certifies the
 impossible before the program runs.
 
-**Use Empty/False when** a branch cannot exist.  The type system then
-verifies you never reach it; `nomatch` or `False.elim` closes the goal.
+*Use Empty/False when* a branch cannot exist.  The type system then
+verifies you never reach it; `nomatch` or {lean}`False.elim` closes the goal.
 
 The payoff: once you have the right type, the program often writes itself.
 The type tells you what constructors to use; the exhaustiveness checker
 tells you which cases remain.  Types are not just documentation —
 they are your co-programmer.
 
-## Exercises
+# Exercises
+%%%
+number := false
+%%%
 
-1. Use `decide` to verify each claim.  For each, identify which type
+1. Use {tactic}`decide` to verify each claim.  For each, identify which type
    constructor(s) from the six-constructor table the proposition uses:
-   (a) `2 < 3 ∧ 3 < 4`
-   (b) `2 < 3 ∨ 3 < 2`
-   (c) `¬ (2 = 3)`
-   (d) `¬ (2 < 3 ∧ 3 < 2)`
-   (e) `(2 < 3 ∧ ¬(3 < 2)) ∨ (3 < 2 ∧ ¬(2 < 3))`
+   1. {lean}`2 < 3 ∧ 3 < 4`
+   2. {lean}`2 < 3 ∨ 3 < 2`
+   3. {lean}`¬ (2 = 3)`
+   4. {lean}`¬ (2 < 3 ∧ 3 < 2)`
+   5. {lean}`(2 < 3 ∧ ¬(3 < 2)) ∨ (3 < 2 ∧ ¬(2 < 3))`
 
-2. Explain in your own words why a function of type `α → Empty` certifies
-   that `α` has no values.  Then write a term of type `False → Nat × Bool × String`
+2. Explain in your own words why a function of type {lean}`α → Empty` certifies
+   that {lean}`α` has no values.  Then write a term of type {lean}`False → Nat × Bool × String`
    and explain what it means in both the computational and logical readings.
 
 3. Write `twice : (α → α) → α → α` that applies a function twice —
@@ -637,7 +765,7 @@ they are your co-programmer.
    #eval twice negate false    -- false
    ```
    When `α` is a Prop, what does `twice` say logically?
-   Write the type `(P → P) → P → P` in Lean and read it aloud.
+   Write the type {lean}`(P → P) → P → P` in Lean and read it aloud.
 
 4. Write `mapOption : (α → β) → Option α → Option β` using `match`.
    It should apply `f` to the wrapped value if `some`, return `none` otherwise.
@@ -650,14 +778,11 @@ they are your co-programmer.
    Which two type constructors from the six-constructor table does the
    type of `mapOption` use?
 
-5. For each description, write the Lean type using only the six constructors
-   from §0.7.  Write just the type — not a term inhabiting it.
-   (a) A person's name (String) paired with their score (Nat)
-   (b) A result that is either a computed Nat or an error String
-   (c) A function that takes any proof of `P ∧ Q` and returns a proof of `Q`
-   (d) Evidence that `¬ (2 + 2 = 5)`
-   (e) A value certifying that the type `Empty` is uninhabited
-   Then use `decide` to verify (d).  What does Lean do to check it?
-@@@ -/
-
-end Week00
+5. For each description, write the Lean type using only {ref "six-constructors"}[the six constructors].
+   Write just the type — not a term inhabiting it.
+   1. A person's name (String) paired with their score (Nat)
+   2. A result that is either a computed Nat or an error String
+   3. A function that takes any proof of `P ∧ Q` and returns a proof of `Q`
+   4. Evidence that `¬ (2 + 2 = 5)`
+   5. A value certifying that the type `Empty` is uninhabited
+   Then use `decide` to verify (4).  What does Lean do to check it?

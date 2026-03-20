@@ -1,63 +1,67 @@
--- FPCourse/Unit2/Week04_AlgebraicDatatypes.lean
-import Mathlib.Data.Option.Basic
-import Mathlib.Logic.Basic
+import VersoManual
 
-/-! @@@
-# Week 4: Algebraic Datatypes
-
-## Sum types and product types
-
-Lean's `inductive` keyword lets us define new types by listing their
-*constructors*.  The resulting type is either a *sum* (one of several
-alternatives) or a *product* (bundling several fields) — or both.
-
-These are called *algebraic* datatypes because they obey the same
-algebraic laws as sums and products of numbers: a type with `n` values
-of type A and `m` values of type B as alternatives has `n + m` values.
-@@@ -/
-
+open Verso Doc
+open Verso.Genre Manual
+open Verso.Genre.Manual.InlineLean
 namespace Week04
 
-/-! @@@
-## 4.1  Enumeration types (pure sums)
-@@@ -/
+#doc (Manual) "Week 4: Algebraic Datatypes" =>
 
+# Sum types and product types
+%%%
+number := false
+%%%
+
+Lean's `inductive` keyword lets us define new types by listing their
+_constructors_.  The resulting type is either a _sum_ (one of several
+alternatives) or a _product_ (bundling several fields) — or both.
+
+These are called _algebraic_ datatypes because they obey the same
+algebraic laws as sums and products of numbers: a type with `n` values
+of type A and `m` values of type B as alternatives has `n + m` values.
+
+# Enumeration types (pure sums)
+
+```lean
 inductive Direction where
   | North | South | East | West
 deriving Repr, DecidableEq
 
 #eval Direction.North      -- Direction.North
 example : Direction.North ≠ Direction.South := by decide
+```
 
-/-! @@@
-## 4.2  Record types (pure products)
-@@@ -/
+# Record types (pure products)
 
+```lean
 structure Point where
   x : Float
   y : Float
 deriving Repr
 
 def origin : Point := { x := 0.0, y := 0.0 }
+```
 
-/-! @@@
-## 4.3  Option: the prototypical proof-carrying type
+# Option: the prototypical proof-carrying type
 
 `Option α` is either `none` (no value) or `some a` (a value `a : α`).
 It is Lean's answer to null.
 
 But notice: `Option.get` does not simply hope the value is present.
-Its type *requires* a proof:
+Its type _requires_ a proof:
 
-```lean
-def Option.get : (o : Option α) → o.isSome = true → α
+```lean (name := optionget)
+#check Option.get
+```
+```leanOutput optionget
+Option.get.{u} {α : Type u} (o : Option α) : o.isSome = true → α
 ```
 
 The caller must supply evidence before the function will run.
-This is the proof-carrying pattern from Week 1, now applied to a
+This is the proof-carrying pattern from {ref "week1"}[Week 1], now applied to a
 realistic data type.
-@@@ -/
 
+```lean
 -- Option.get requires a proof.
 def safeHead (xs : List α) (h : xs ≠ []) : α :=
   xs.head h
@@ -70,20 +74,29 @@ def safeHead (xs : List α) (h : xs ≠ []) : α :=
 theorem option_map_isSome (f : α → β) :
     ∀ o : Option α, (Option.map f o).isSome = o.isSome :=
   fun o => Option.recOn o rfl (fun _ => rfl)
+```
 
-/-! @@@
-## 4.4  ∀ and ∃ in datatype specifications
+# ∀ and ∃ in datatype specifications
 
 When we define a new type, its specifications typically quantify over
 all values of that type.  Here is the vocabulary:
 
-| Symbol | Reading | Introduction form |
-|--------|---------|-------------------|
-| `∀ x : T, P x` | "for all x of type T, P holds of x" | supply a function `fun x => proof_of_P_x` |
-| `∃ x : T, P x` | "there exists x of type T such that P holds" | `⟨witness, proof⟩` |
+:::table
+*
+ * Symbol
+ * Reading
+ * Introduction form
+*
+ * `∀ x : T, P x`
+ * "for all x of type T, P holds of x"
+ * supply a function `fun x => proof_of_P_x`
+*
+ * `∃ x : T, P x`
+ * "there exists x of type T such that P holds"
+ * `⟨witness, proof⟩`
+:::
 
-@@@ -/
-
+```lean
 -- ∀ example: a property of all options
 theorem none_map_always_none (f : α → β) :
     Option.map f none = none :=
@@ -98,15 +111,15 @@ private def factorial' : Nat → Nat
 
 example : ∃ n : Nat, factorial' n > 1000 :=
   ⟨7, by decide⟩
+```
 
-/-! @@@
-## 4.5  Recursive types: expressions
+# Recursive types: expressions
 
-A *recursive* inductive type refers to itself in its constructor
+A _recursive_ inductive type refers to itself in its constructor
 arguments.  This is how we build trees, lists, and other inductively
 structured data.
-@@@ -/
 
+```lean
 inductive Expr where
   | num  : Int → Expr
   | add  : Expr → Expr → Expr
@@ -137,11 +150,11 @@ def Expr.eval : Expr → Int
 theorem eval_add (e₁ e₂ : Expr) :
     (Expr.add e₁ e₂).eval = e₁.eval + e₂.eval :=
   rfl
+```
 
-/-! @@@
-## 4.6  The template principle
+# The template principle
 
-Every inductive type `T` has a corresponding *elimination principle*:
+Every inductive type `T` has a corresponding _elimination principle_:
 to define a function from `T`, provide one clause per constructor.
 The types of the clauses are determined by the constructor signatures.
 
@@ -152,10 +165,13 @@ For `Expr`:
 - A clause for `mul e₁ e₂` — same
 - A clause for `neg e` — access to `e` and its result
 
-This is the *template principle*: the type tells you the shape of the
+This is the _template principle_: the type tells you the shape of the
 function.
 
-## Exercises
+# Exercises
+%%%
+number := false
+%%%
 
 1. Define an inductive type `Shape` with constructors for
    `Circle` (radius : Float), `Rectangle` (width height : Float),
@@ -164,7 +180,7 @@ function.
 2. Define a function `area : Shape → Float`.
 
 3. State (as a Prop) the specification: "the area of any circle with
-   radius r equals π * r * r."  You may use `Float.pi` from Lean.
+   radius r equals `π * r * r`."  You may use `Float.pi` from Lean.
    (We will not prove this — Float lacks decidable equality.  But we
    can state it.)
 
@@ -173,6 +189,3 @@ function.
 
 5. Use `∃` to state: "there exists an Expr that evaluates to 42."
    Prove it by providing a witness.
-@@@ -/
-
-end Week04

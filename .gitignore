@@ -6,5 +6,5 @@
 .lake/
 build/
 
-# mdBook output
-book/
+# verso output
+_out/

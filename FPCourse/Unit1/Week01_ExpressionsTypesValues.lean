@@ -1,33 +1,36 @@
--- FPCourse/Unit1/Week01_ExpressionsTypesValues.lean
-import Mathlib.Data.Nat.Basic
-import Mathlib.Data.Bool.Basic
-import Mathlib.Logic.Basic
+import VersoManual
 
-/-! @@@
-# Week 1: Expressions, Types, and Values
+open Verso Doc
+open Verso.Genre Manual
+open Verso.Genre.Manual.InlineLean
+namespace Week01
 
-## The central idea of this course
+#doc (Manual) "Week 1: Expressions, Types, and Values" =>
+%%%
+tag := "week1"
+%%%
 
-Every expression in Lean has a *type*.  Types do two jobs at once.
+# The central idea of this course
+%%%
+number := false
+%%%
 
-- **Computational types** classify data: `Nat`, `Bool`, `String`,
+Every expression in Lean has a _type_.  Types do two jobs at once.
+
+- *Computational types* classify data: `Nat`, `Bool`, `String`,
   `Nat × Bool`.  A value of a computational type can be evaluated.
 
-- **Logical types** (also called *propositions*) classify *claims*.
-  A value of a logical type is a *proof* that the claim holds.
+- *Logical types* (also called _propositions_) classify _claims_.
+  A value of a logical type is a _proof_ that the claim holds.
 
 These two jobs are performed by the same language using the same
 syntax.  That identity — programs and proofs living in one world — is
 the deepest idea in the course.  You will see it demonstrated in every
 week that follows.  By Week 14 you will have a name for it.
-@@@ -/
 
-namespace Week01
+# Computational types
 
-/-! @@@
-## 1.1  Computational types
-@@@ -/
-
+```lean
 -- Every literal has a type.  Use #check to inspect it.
 #check (42 : Nat)        -- Nat
 #check (true : Bool)     -- Bool
@@ -44,20 +47,20 @@ namespace Week01
 #eval Nat.succ 7         -- 8
 #eval Nat.add 3 4        -- 7
 #eval true && false      -- false  (Bool operations)
+```
 
-/-! @@@
-## 1.2  The Bool / Prop distinction
+# The Bool / Prop distinction
 
 `Bool` is a two-element computational type: values `true` and `false`.
-It is the type of the result of a test you can *run*.
+It is the type of the result of a test you can _run_.
 
-`Prop` is the type of *logical claims*.  A term of type `P : Prop` is
-a *proof* that P holds.  `Prop` is not two-valued; some propositions
+`Prop` is the type of _logical claims_.  A term of type `P : Prop` is
+a _proof_ that P holds.  `Prop` is not two-valued; some propositions
 have no proof (they are false), some have many proofs.
 
-**This is the most important type-level distinction in Lean.**
-@@@ -/
+*This is the most important type-level distinction in Lean.*
 
+```lean
 -- Bool: a computed result.
 #eval (2 == 3 : Bool)       -- false  (uses BEq instance)
 #eval (2 < 5 : Bool)        -- true   (uses DecidableLT)
@@ -74,23 +77,23 @@ have no proof (they are false), some have many proofs.
 -- Evaluation: Nat.succ 7 ↝ 8, and the right side is already 8.
 example : 2 + 2 = 4 := rfl      -- both sides evaluate to 4
 example : Nat.succ 7 = 8 := rfl  -- both sides evaluate to 8
+```
 
-/-! @@@
-## 1.3  `decide`: mechanically proving decidable propositions
+# `decide`: mechanically proving decidable propositions
 
-Some propositions are *decidable*: there is an algorithm that always
+Some propositions are _decidable_: there is an algorithm that always
 produces either a proof or a refutation.  For those propositions, the
 term `decide` acts as an automatic proof producer.
 
-`decide` is a *term*, not a command.  It inhabits a type `P : Prop`
+`decide` is a _term_, not a command.  It inhabits a type `P : Prop`
 whenever `P` has a `Decidable` instance and reduces to `true`.  The
 compiler checks this at elaboration time.  If `P` reduces to `false`,
 the file fails to compile.
 
 This is mechanical verification in its most direct form: the claim is
 part of the type, and the compiler certifies it.
-@@@ -/
 
+```lean
 -- Evaluation: `decide` evaluates the decision procedure for the proposition.
 -- For each claim, Lean evaluates both sides and checks the result.
 -- 2 + 2 ↝ 4, so 2 + 2 = 4 is confirmed.
@@ -108,13 +111,13 @@ example : ∃ x ∈ ([1, 2, 3] : List Nat), x > 2  := by decide
 -- If the claim is FALSE, the file will not compile.
 -- Uncomment the next line to see the error:
 -- example : 2 + 2 = 5 := decide
+```
 
-/-! @@@
-## 1.4  Product types
+# Product types
 
 A product type `α × β` pairs a value of type `α` with a value of type `β`.
-@@@ -/
 
+```lean
 def myPair : Nat × Bool := (7, true)
 
 #check myPair.1    -- Nat
@@ -127,27 +130,27 @@ def triple : Nat × Bool × String := (3, false, "hi")
 #eval triple.1          -- 3
 #eval triple.2.1        -- false
 #eval triple.2.2        -- "hi"
+```
 
-/-! @@@
-## 1.5  Proof-carrying types: a first look
+# Proof-carrying types: a first look
 
-Here is a function that divides two natural numbers.  The *type*
+Here is a function that divides two natural numbers.  The _type_
 of the second argument includes a condition: a proof that the divisor
 is nonzero must be supplied by the caller.
 
-```lean
+```lean -keep
 def safeDiv (a : Nat) (b : Nat) (h : b ≠ 0) : Nat := a / b
 ```
 
 The type `b ≠ 0` is a proposition — a logical type.  Calling
-`safeDiv` does not just pass a number; it passes a *proof* that the
+`safeDiv` does not just pass a number; it passes a _proof_ that the
 number is nonzero.  The compiler enforces this before the program runs.
 
 This pattern — conditions embedded in types, enforced at compile time —
-is what we mean by *proof-carrying types*.  You will see it everywhere
+is what we mean by _proof-carrying types_.  You will see it everywhere
 from Week 2 onward.
-@@@ -/
 
+```lean
 def safeDiv (a : Nat) (b : Nat) (h : b ≠ 0) : Nat := a / b
 
 -- To call safeDiv we must supply a proof that the divisor ≠ 0.
@@ -158,23 +161,41 @@ def safeDiv (a : Nat) (b : Nat) (h : b ≠ 0) : Nat := a / b
 -- Attempting safeDiv 10 0 would require a proof of 0 ≠ 0,
 -- which is false.  `decide` would refuse, and the file would
 -- not compile.
+```
 
-/-! @@@
-## 1.6  Type derivation rules (summary)
+# Type derivation rules (summary)
 
-| Syntax | Type |
-|--------|------|
-| `n : Nat` | `Nat` |
-| `b : Bool` | `Bool` |
-| `(a, b) : α × β` | `α × β` |
-| `f : α → β`, `x : α` | `f x : β` |
-| `P : Prop`, proof `h : P` | `h : P` |
-| `decide` (when `[Decidable P]`) | `P` |
+:::table
+*
+ * Syntax
+ * Type
+*
+ * `n : Nat`
+ * `Nat`
+*
+ * `b : Bool`
+ * `Bool`
+*
+ * `(a, b) : α × β`
+ * `α × β`
+*
+ * `f : α → β`, `x : α`
+ * `f x : β`
+*
+ * `P : Prop`, proof `h : P`
+ * `h : P`
+*
+ * `decide` (when `[Decidable P]`)
+ * `P`
+:::
 
 Reading types is the foundational skill of this course.
 Every week adds new type constructors to this table.
 
-## Exercises
+# Exercises
+%%%
+number := false
+%%%
 
 1. Use `#check` to find the types of `Nat.add`, `Nat.mul`, and
    `String.append`.  For each, write in plain English what the type
@@ -189,16 +210,14 @@ Every week adds new type constructors to this table.
    normal form.)
 
 4. Use `decide` to verify each claim:
-   (a) `17 * 23 = 391`
-   (b) `100 < 200 ∧ 200 < 300`
-   (c) `¬ (5 * 5 = 26)`
-   (d) `(7 + 3) * 2 = 7 * 2 + 3 * 2`
+   1. `17 * 23 = 391`
+   2. `100 < 200 ∧ 200 < 300`
+   3. `¬ (5 * 5 = 26)`
+   4. `(7 + 3) * 2 = 7 * 2 + 3 * 2`
+
    For each, identify whether the proposition is atomic or built
    from connectives (`∧`, `¬`).
 
 5. Why can't you write `example : (1.0 : Float) = 1.0 := decide`?
    (Hint: think about what equality on `Float` would require.
    We will return to this in Week 7.)
-@@@ -/
-
-end Week01
