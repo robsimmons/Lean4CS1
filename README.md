@@ -12,3 +12,9 @@ translation and only use Verso features for top-level code.
 
 ## Building the document
 
+These build commands will 
+
+```
+lake exe build-doc
+python -m http.server --directory _out/html-multi
+```

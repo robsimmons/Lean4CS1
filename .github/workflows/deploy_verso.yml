@@ -1,0 +1,22 @@
+name: Deploy Verso site to Pages
+
+on:
+  push:
+    branches: ["verso"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: leanprover/lean-action@v1
+
+      - name: build site with verso
+        run: lake exe build-doc
+      
+      - name: upload artifact to github pages
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./_out/html-multi        
