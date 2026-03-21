@@ -51,4 +51,4 @@ version of the course is available at
 {include FPCourse.Unit2.Week05_Lists}
 {include FPCourse.Unit2.Week06_Trees}
 {include FPCourse.Unit2.Week07_PolymorphismDecidability}
-{include FPCourse.Unit2.Week08_HigherOrderFunctions}
+{include FPCourse.Unit3.Week08_HigherOrderFunctions}
