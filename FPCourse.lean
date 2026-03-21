@@ -28,16 +28,25 @@ open Week01
 open Week02
 open Week03
 open Week04
+open Week05
+open Week06
+open Week07
 
 #doc (Manual) "CS1: Programming, Certified" =>
 
 A forked [Verso](https://verso.lean-lang.org) translation of the course by
-Kevin Sullivan, [available on GitHub](https://github.com/kevinsullivan/Lean4CS1).
-See [kevinsullivan.github.io/Lean4CS1](https://kevinsullivan.github.io/Lean4CS1/)
-for the official version.
+Kevin Sullivan.
+
+The code for Sullivan's version of the course is [available on
+GitHub](https://github.com/kevinsullivan/Lean4CS1), and the official full
+version of the course is available at
+[kevinsullivan.github.io/Lean4CS1](https://kevinsullivan.github.io/Lean4CS1/).
 
 {include FPCourse.Unit1.Week00_AlgebraicTypes}
 {include FPCourse.Unit1.Week01_ExpressionsTypesValues}
 {include FPCourse.Unit1.Week02_FunctionsSpecifications}
 {include FPCourse.Unit1.Week03_RecursionTermination}
 {include FPCourse.Unit2.Week04_AlgebraicDatatypes}
+{include FPCourse.Unit2.Week05_Lists}
+{include FPCourse.Unit2.Week06_Trees}
+{include FPCourse.Unit2.Week07_PolymorphismDecidability}

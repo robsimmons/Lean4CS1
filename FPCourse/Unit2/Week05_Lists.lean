@@ -1,11 +1,16 @@
--- FPCourse/Unit2/Week05_Lists.lean
-import Mathlib.Data.List.Basic
-import Mathlib.Data.List.Lemmas
+import VersoManual
 
-/-! @@@
-# Week 5: Lists
+open Verso Doc
+open Verso.Genre Manual
+open Verso.Genre.Manual.InlineLean
+namespace Week05
 
-## Lists as the canonical inductive type
+#doc (Manual) "Week 5: Lists" =>
+
+# Lists as the canonical inductive type
+%%%
+number := false
+%%%
 
 `List α` is defined inductively:
 - `[]` (nil) — the empty list
@@ -18,18 +23,14 @@ The specifications for list functions are propositions that quantify over
 all lists.  Some of these propositions are decidable — when the element
 type has `DecidableEq` and the list is finite, we can check them with
 `decide`.
-@@@ -/
 
-namespace Week05
-
-/-! @@@
-## 5.1  Standard list functions and their specifications
+# Standard list functions and their specifications
 
 The specifications below are ALL provided as term-mode proofs.
 Read them; understand the proposition being stated; observe how the
 proof term mirrors the function definition.
-@@@ -/
 
+```lean
 -- Length
 theorem length_nil : ([] : List α).length = 0 := rfl
 theorem length_cons (h : α) (t : List α) :
@@ -55,15 +56,15 @@ theorem length_append (xs ys : List α) :
 theorem mem_append_iff (a : α) (xs ys : List α) :
     a ∈ xs ++ ys ↔ a ∈ xs ∨ a ∈ ys :=
   List.mem_append
+```
 
-/-! @@@
-## 5.2  Decide on finite lists
+# Decide on finite lists
 
 When the element type has `DecidableEq`, propositions of the form
 `∀ x ∈ xs, P x` are decidable for finite `xs` (when `P` is decidable).
 This means `decide` can verify them automatically.
-@@@ -/
 
+```lean
 -- Evaluation: `decide` checks finite-list claims by evaluating the predicate
 -- on each element in turn.  ∀ x ∈ [2,4,6,8], x%2=0 becomes:
 --   2%2=0 ↝ true,  4%2=0 ↝ true,  6%2=0 ↝ true,  8%2=0 ↝ true  ✓
@@ -77,9 +78,9 @@ example : ¬ (5 ∈ ([1, 2, 3, 4] : List Nat)) := by decide
 
 -- Equality of concrete lists:
 example : ([1, 2] ++ [3, 4] : List Nat) = [1, 2, 3, 4] := by decide
+```
 
-/-! @@@
-## 5.3  Reverse and the auxiliary lemma pattern
+# Reverse and the auxiliary lemma pattern
 
 `reverse` is defined recursively.  Its specification — that reversing
 twice returns the original list — requires a helper lemma about how
@@ -88,8 +89,8 @@ twice returns the original list — requires a helper lemma about how
 This illustrates a general pattern: when a direct proof gets stuck,
 look at what the inductive step requires and name it as a separate lemma.
 The provided proofs below demonstrate this pattern explicitly.
-@@@ -/
 
+```lean
 theorem reverse_append (xs ys : List α) :
     (xs ++ ys).reverse = ys.reverse ++ xs.reverse :=
   List.reverse_append
@@ -101,17 +102,17 @@ theorem reverse_reverse (xs : List α) : xs.reverse.reverse = xs :=
 -- The dependency is: reverse_reverse requires reverse_append,
 -- which in turn requires nil_append and append_assoc.
 -- Each lemma is proved by structural recursion on the first list.
+```
 
-/-! @@@
-## 5.4  Map and its specification
+# Map and its specification
 
 `List.map f` applies `f` to every element.  Its specification:
 1. Map preserves length.
 2. Map distributes over append.
 3. Mapping the identity function is the identity on lists.
 4. Mapping a composition equals composing two maps.
-@@@ -/
 
+```lean
 theorem map_length (f : α → β) (xs : List α) :
     (xs.map f).length = xs.length :=
   List.length_map f
@@ -126,17 +127,17 @@ theorem map_id_eq (xs : List α) : xs.map id = xs :=
 theorem map_comp (f : β → γ) (g : α → β) (xs : List α) :
     xs.map (f ∘ g) = (xs.map g).map f := by
   simp [← List.map_map]
+```
 
-/-! @@@
-## 5.5  Specifications students should practice writing
+# Specifications students should practice writing
 
 Reading a specification is easier than writing one.  The following are
 propositions about list functions.  Practice writing them yourself,
 then check against these.
 
 "filter keeps exactly the elements satisfying the predicate":
-@@@ -/
 
+```lean
 -- ∀ x, x ∈ filter p xs ↔ x ∈ xs ∧ p x = true
 theorem mem_filter_iff (p : α → Bool) (xs : List α) (x : α) :
     x ∈ xs.filter p ↔ x ∈ xs ∧ p x = true :=
@@ -146,9 +147,12 @@ theorem mem_filter_iff (p : α → Bool) (xs : List α) (x : α) :
 theorem filter_length_le (p : α → Bool) (xs : List α) :
     (xs.filter p).length ≤ xs.length :=
   List.length_filter_le p xs
+```
 
-/-! @@@
-## Exercises
+# Exercises
+%%%
+number := false
+%%%
 
 1. State (as a Prop) the specification: "if n ∈ xs, then n ∈ xs ++ ys."
    Prove it using `List.mem_append`.
@@ -164,6 +168,3 @@ theorem filter_length_le (p : α → Bool) (xs : List α) :
 5. Write a function `myZip : List α → List β → List (α × β)` that
    pairs corresponding elements.  State its length specification:
    `(myZip xs ys).length = min xs.length ys.length`.
-@@@ -/
-
-end Week05

@@ -1,28 +1,29 @@
--- FPCourse/Unit2/Week07_PolymorphismDecidability.lean
-import Mathlib.Data.List.Basic
-import Mathlib.Logic.Basic
+import VersoManual
 
-/-! @@@
-# Week 7: Polymorphism and Decidability
+open Verso Doc
+open Verso.Genre Manual
+open Verso.Genre.Manual.InlineLean
+namespace Week07
 
-## Type variables and parametric polymorphism
+#doc (Manual) "Week 7: Polymorphism and Decidability" =>
 
-A *polymorphic* function works uniformly for any type.  Type variables
+# Type variables and parametric polymorphism
+%%%
+number := false
+%%%
+
+A _polymorphic_ function works uniformly for any type.  Type variables
 (written with lowercase letters like `α`, `β`) stand for any type.
 
-A function is *parametrically polymorphic* if its behavior does not
+A function is _parametrically polymorphic_ if its behavior does not
 depend on which type the variable is instantiated to.  The type alone
 constrains what the function can do — a polymorphic `f : List α → List α`
 cannot inspect element values, so it can only permute, drop, or
 duplicate them.
-@@@ -/
 
-namespace Week07
+# Polymorphic functions and their types
 
-/-! @@@
-## 7.1  Polymorphic functions and their types
-@@@ -/
-
+```lean
 -- id works for any type
 #check @id        -- (α : Type u) → α → α
 
@@ -33,15 +34,15 @@ def myConst (a : α) (_ : β) : α := a
 -- flip swaps argument order
 def myFlip (f : α → β → γ) : β → α → γ := fun b a => f a b
 #check @myFlip    -- (α β γ : Type u) → (α → β → γ) → β → α → γ
+```
 
-/-! @@@
-## 7.2  Bounded polymorphism: type class constraints
+# Bounded polymorphism: type class constraints
 
-Sometimes a polymorphic function needs *some* knowledge about the type.
+Sometimes a polymorphic function needs _some_ knowledge about the type.
 Type classes express this: `[DecidableEq α]` says "α must have a
 decidable equality test."  The constraint is explicit in the type.
-@@@ -/
 
+```lean
 -- Without DecidableEq, we cannot compare elements
 def contains [DecidableEq α] (x : α) : List α → Bool
   | []      => false
@@ -72,20 +73,19 @@ theorem contains_spec [DecidableEq α] (x : α) (xs : List α) :
         simp [contains]
         right
         exact ih.mpr ht
+```
 
-/-! @@@
-## 7.3  The DecidableEq type class
+# The DecidableEq type class
 
 `DecidableEq α` is a type class that provides, for every pair `a b : α`,
 a decision: either a proof that `a = b` or a proof that `a ≠ b`.
 
-```lean
+```lean -keep
 class DecidableEq (α : Type u) where
   decEq : (a b : α) → Decidable (a = b)
 ```
 
-Instances of `Decidable`:
-```lean
+```lean -keep
 inductive Decidable (p : Prop) where
   | isFalse : ¬p → Decidable p
   | isTrue  :  p → Decidable p
@@ -101,8 +101,8 @@ you define with `deriving DecidableEq`.
 
 Types WITHOUT `DecidableEq`: functions `α → β` in general (you cannot
 check `f = g` by running them), and — crucially — `Float`.
-@@@ -/
 
+```lean
 -- Nat has DecidableEq:
 example : DecidableEq Nat := inferInstance
 example : (3 : Nat) = 3 ∨ (3 : Nat) ≠ 3 := by decide
@@ -113,15 +113,15 @@ example : DecidableEq Bool := inferInstance
 -- List Nat has DecidableEq:
 example : DecidableEq (List Nat) := inferInstance
 example : ([1, 2, 3] : List Nat) = [1, 2, 3] := by decide
+```
 
-/-! @@@
-## 7.4  Float and the absence of DecidableEq
+# Float and the absence of DecidableEq
 
 `Float` represents IEEE 754 double-precision floating-point numbers.
 IEEE 754 specifies that `NaN ≠ NaN` — the special "not a number" value
 is not equal to itself.
 
-This violates the *reflexivity* of equality: `∀ x, x = x`.
+This violates the _reflexivity_ of equality: `∀ x, x = x`.
 Lean's equality is reflexive by definition (`rfl : a = a`).
 If `Float` had `DecidableEq`, we could derive `NaN = NaN` (by `rfl`),
 contradicting IEEE 754.
@@ -136,14 +136,14 @@ The practical consequence:
 - Specifications about floating-point programs must use `Real` or `Rat`
   for the mathematical content, with a separate claim about approximation.
 
-More importantly, this is a lesson that applies in *every* programming language:
-**never use `==` to compare floating-point values.**
+More importantly, this is a lesson that applies in _every_ programming language:
+*never use `==` to compare floating-point values.*
 The same IEEE 754 semantics that breaks `DecidableEq` here — `NaN ≠ NaN`, and
 rounding means two computations of "the same" value may produce slightly different
 results — make floating-point equality unreliable in Python, Java, C, and everywhere
 else.  Always compare floats with a tolerance: `|x - y| < ε`.
-@@@ -/
 
+```lean
 -- Float DOES have BEq (Boolean equality), but that is NOT the same as =
 #check (inferInstance : BEq Float)   -- BEq Float is available
 
@@ -163,31 +163,59 @@ else.  Always compare floats with a tolerance: `|x - y| < ε`.
 -- ∀ x y : Float, |Float.toReal (x + y) - (Float.toReal x + Float.toReal y)| < ε
 -- This is a real-valued specification; its verification uses a different
 -- methodology (floating-point error analysis).
+```
 
-/-! @@@
-## 7.5  Summary: the decidability boundary
+# Summary: the decidability boundary
 
-**Reading `∀` and `∃`.**  Two quantifiers appear throughout this table
+*Reading `∀` and `∃`.*  Two quantifiers appear throughout this table
 and the rest of the course.  Read them aloud as follows:
 
 - `∀ x : α, P x` — "for every `x` of type `α`, the proposition `P x` holds"
 - `∃ x : α, P x` — "there exists some `x` of type `α` such that `P x` holds"
 
-Both are types.  A proof of `∀ x : α, P x` is a *function* `(x : α) → P x` —
+Both are types.  A proof of `∀ x : α, P x` is a _function_ `(x : α) → P x` —
 given any `x`, produce a proof of `P x`.  A proof of `∃ x : α, P x` is a
-*dependent pair* `⟨witness, proof⟩` — a specific value together with a proof
+_dependent pair_ `⟨witness, proof⟩` — a specific value together with a proof
 that the claim holds for that value.
 
-| Proposition form | Decidable? | Proof term |
-|-----------------|-----------|------------|
-| `a = b` for `Nat`, `Bool`, `List Nat`, etc. | Yes | `decide` |
-| `a < b` for `Nat`, `Int` | Yes | `decide` |
-| `∀ x ∈ xs, P x` (finite `xs`, decidable `P`) | Yes | `decide` |
-| `∃ x ∈ xs, P x` (finite `xs`, decidable `P`) | Yes | `decide` |
-| `a = b` for `Float` | **No** | Cannot be proved with `decide` |
-| `a = b` for function types | **No** | Not decidable in general |
-| `∀ n : Nat, P n` (unbounded) | Not in general | Requires a proof |
-| `∃ n : Nat, P n` (unbounded) | Not in general | Requires a witness + proof |
+:::table
+*
+ * Proposition form
+ * Decidable?
+ * Proof term
+*
+ * `a = b` for `Nat`, `Bool`, `List Nat`, etc.
+ * Yes
+ * `decide`
+*
+ * `a < b` for `Nat`, `Int`
+ * Yes
+ * `decide`
+*
+ * `∀ x ∈ xs, P x` (finite `xs`, decidable `P`)
+ * Yes
+ * `decide`
+*
+ * `∃ x ∈ xs, P x` (finite `xs`, decidable `P`)
+ * Yes
+ * `decide`
+*
+ * `a = b` for `Float`
+ * *No*
+ * Cannot be proved with `decide`
+*
+ * `a = b` for function types
+ * *No*
+ * Not decidable in general
+*
+ * `∀ n : Nat, P n` (unbounded)
+ * Not in general
+ * Requires a proof
+*
+ * `∃ n : Nat, P n` (unbounded)
+ * Not in general
+ * Requires a witness + proof
+:::
 
 This table is one of the most important things in the course.
 
@@ -212,6 +240,3 @@ This table is one of the most important things in the course.
    (b) `∀ c ∈ [Color.Red, Color.Green, Color.Blue], c = Color.Red ∨ c ≠ Color.Red`
    Explain why `decide` can handle this but could not handle the same
    claim over all `Nat` values.
-@@@ -/
-
-end Week07

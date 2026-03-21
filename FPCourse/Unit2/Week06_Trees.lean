@@ -1,38 +1,39 @@
--- FPCourse/Unit2/Week06_Trees.lean
-import Mathlib.Data.List.Sort
-import Mathlib.Order.Basic
+import VersoManual
+import Mathlib.Tactic.SplitIfs
 
-/-! @@@
-# Week 6: Trees and BST Invariants
+open Verso Doc
+open Verso.Genre Manual
+open Verso.Genre.Manual.InlineLean
+namespace Week06
 
-## Binary trees
+#doc (Manual) "Week 6: Trees and BST Invariants" =>
+
+# Binary trees
+%%%
+number := false
+%%%
 
 A binary tree over type `α` is either a leaf or a node carrying a value
 and two subtrees.  Like lists, trees are defined inductively, and
 functions on them are defined by structural recursion.
 
-The key new idea this week: *invariants*.  A BST (binary search tree)
-is not just any tree — it is a tree satisfying a *predicate* that
+The key new idea this week: _invariants_.  A BST (binary search tree)
+is not just any tree — it is a tree satisfying a _predicate_ that
 constrains the relationship between each node's value and the values in
 its subtrees.  That predicate is a proposition, and preserving it is
 a specification.
-@@@ -/
 
-namespace Week06
+# The BTree type
 
-/-! @@@
-## 6.1  The BTree type
-@@@ -/
-
+```lean
 inductive BTree (α : Type) where
   | leaf : BTree α
   | node : BTree α → α → BTree α → BTree α
-deriving Repr
+```
 
-/-! @@@
-## 6.2  Basic tree functions
-@@@ -/
+# Basic tree functions
 
+```lean
 def BTree.size : BTree α → Nat
   | .leaf         => 0
   | .node l _ r   => l.size + 1 + r.size
@@ -59,9 +60,9 @@ theorem toList_length_eq_size (t : BTree α) :
     simp only [BTree.toList, BTree.size, List.length_append, List.length_cons,
                List.length_nil]
     omega
+```
 
-/-! @@@
-## 6.3  The BST predicate
+# The BST predicate
 
 A BST (for `BTree Nat`) is a tree where:
 - Every value in the left subtree is strictly less than the root value.
@@ -70,8 +71,8 @@ A BST (for `BTree Nat`) is a tree where:
 
 We express "every value in the subtree satisfies P" using an auxiliary
 predicate `BTree.ForAll`.
-@@@ -/
 
+```lean
 -- ForAll: every element of a tree satisfies a predicate
 def BTree.ForAll (p : α → Prop) : BTree α → Prop
   | .leaf         => True
@@ -100,33 +101,33 @@ instance decForAll (p : Nat → Prop) [DecidablePred p] :
       Decidable.isFalse (fun ⟨_, _, h⟩ => hr h)
     | _, _, Decidable.isFalse hv =>
       Decidable.isFalse (fun ⟨h, _, _⟩ => hv h)
+```
 
-/-! @@@
-## 6.4  BST insertion
+# BST insertion
 
 Insert `x` into a BST, maintaining the invariant:
 - If `x < v`, insert into the left subtree.
 - If `v < x`, insert into the right subtree.
 - If `x = v`, the element is already present.
-@@@ -/
 
+```lean
 def bstInsert (x : Nat) : BTree Nat → BTree Nat
   | .leaf         => .node .leaf x .leaf
   | .node l v r   =>
     if x < v then .node (bstInsert x l) v r
     else if v < x then .node l v (bstInsert x r)
     else .node l v r   -- x = v: already present
+```
 
-/-! @@@
-## 6.5  Preservation of ForAll
+# Preservation of ForAll
 
 A key lemma: if all elements of `t` satisfy `p`, and `p x` holds, then all
 elements of `bstInsert x t` also satisfy `p`.
 
 The provided proof is by structural recursion on `t`, mirroring the
 structure of `bstInsert`.
-@@@ -/
 
+```lean
 -- Provided term-mode proof of ForAll preservation.
 theorem forAll_bstInsert (p : Nat → Prop) (x : Nat) (hx : p x) :
     ∀ t : BTree Nat, t.ForAll p → (bstInsert x t).ForAll p
@@ -137,9 +138,9 @@ theorem forAll_bstInsert (p : Nat → Prop) (x : Nat) (hx : p x) :
     · exact ⟨hv, forAll_bstInsert p x hx l hfl, hfr⟩
     · exact ⟨hv, hfl, forAll_bstInsert p x hx r hfr⟩
     · exact ⟨hv, hfl, hfr⟩
+```
 
-/-! @@@
-## 6.6  Preservation of IsBST
+# Preservation of IsBST
 
 If `t` is a BST and `x : Nat`, then `bstInsert x t` is also a BST.
 
@@ -147,8 +148,7 @@ The proof uses `forAll_bstInsert` twice per recursive case — once for the
 left bound and once for the right — along with the structurally recursive
 IsBST assumption.
 
-@@@ -/
-
+```lean
 theorem bstInsert_isBST (x : Nat) :
     ∀ t : BTree Nat, IsBST t → IsBST (bstInsert x t)
   | .leaf,        _ => by
@@ -162,15 +162,15 @@ theorem bstInsert_isBST (x : Nat) :
     · exact IsBST.node hl (bstInsert_isBST x r hr)
         hfl (forAll_bstInsert (v < ·) x hgt r hfr)
     · exact IsBST.node hl hr hfl hfr
+```
 
-/-! @@@
-## 6.7  Mutual recursion: Rose trees
+# 6.7  Mutual recursion: Rose trees
 
-A *rose tree* has nodes with arbitrarily many children (stored as a list).
+A _rose tree_ has nodes with arbitrarily many children (stored as a list).
 Defining rose trees requires mutual recursion between the tree type and
 the forest (list of trees) type.
-@@@ -/
 
+```lean
 mutual
   inductive RoseTree (α : Type) where
     | node : α → Forest α → RoseTree α
@@ -188,9 +188,12 @@ mutual
     | .nil      => 0
     | .cons t f => roseSize t + forestSize f
 end
+```
 
-/-! @@@
-## Exercises
+# Exercises
+%%%
+number := false
+%%%
 
 1. Define `BTree.map (f : α → β) : BTree α → BTree β` and state its
    specification: "map f preserves size."
@@ -213,6 +216,3 @@ end
 
 5. State the specification for `roseSize` analogous to
    `toList_length_eq_size`.
-@@@ -/
-
-end Week06

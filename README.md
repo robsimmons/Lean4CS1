@@ -12,9 +12,13 @@ translation and only use Verso features for top-level code.
 
 ## Building the document
 
-These build commands will 
+These build commands will create the HTML site and allow it to be previewed
+at http://localhost:8000/
 
 ```
 lake exe build-doc
 python -m http.server --directory _out/html-multi
 ```
+
+The `.github/workflows/deploy_verso.yml` action puts the built verso document
+at https://robsimmons.github.io/Lean4CS1/
