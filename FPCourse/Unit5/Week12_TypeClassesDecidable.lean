@@ -1,30 +1,32 @@
--- FPCourse/Unit5/Week12_TypeClassesDecidable.lean
-import Mathlib.Data.List.Basic
-import Mathlib.Logic.Basic
+import VersoManual
+import Batteries.Logic
 
-/-! @@@
-# Week 12: Type Classes and the Decidable Type
+open Verso Doc
+open Verso.Genre Manual
+open Verso.Genre.Manual.InlineLean
+namespace Week12
 
-## What a type class really is
+#doc (Manual) "Week 12: Type Classes and the Decidable Type" =>
+
+# What a type class really is
+%%%
+number := false
+%%%
 
 A type class is an interface with implementations provided by instances.
 We have seen type classes as abstract types (Week 11).  This week we
-examine type classes as *algebraic structures* — sets with operations
+examine type classes as _algebraic structures_ — sets with operations
 satisfying laws.
 
 More importantly, we examine `Decidable` itself as an inductive type.
 Understanding `Decidable` as a data type — not magic — completes the
 picture of how `decide` works as a term-mode proof producer.
-@@@ -/
 
-namespace Week12
-
-/-! @@@
-## 12.1  Decidable: an inductive type carrying proofs
+# Decidable: an inductive type carrying proofs
 
 `Decidable` is defined in Lean's core library as:
 
-```lean
+```lean -keep
 inductive Decidable (p : Prop) where
   | isFalse : ¬p → Decidable p
   | isTrue  :  p → Decidable p
@@ -35,13 +37,13 @@ either:
 - `isFalse h` where `h : ¬p` — a proof that p is false, OR
 - `isTrue h`  where `h : p`  — a proof that p is true.
 
-`Decidable p` does not just say "p is true or false" — it *provides*
+`Decidable p` does not just say "p is true or false" — it _provides_
 the proof of whichever is the case.
 
-**Evaluation.**  `decide` is not magic — it evaluates.  When you write
+*Evaluation.*  `decide` is not magic — it evaluates.  When you write
 `by decide` to prove `p`, Lean:
 1. Looks up the `Decidable p` instance (a value of type `Decidable p`).
-2. *Evaluates* that instance to its normal form.
+2. _Evaluates_ that instance to its normal form.
 3. If the normal form is `isTrue h`, the proof `h : p` is extracted and
    used.  The goal is closed.
 4. If the normal form is `isFalse h`, elaboration fails — the goal is
@@ -54,8 +56,8 @@ is exactly these four steps.
 `decide` used as a proof term extracts the `isTrue h` component and
 returns `h : p`.  If the instance is `isFalse _`, the file fails to
 compile.
-@@@ -/
 
+```lean
 -- We can inspect Decidable values directly:
 #check @Decidable.isTrue   -- ∀ {p : Prop}, p → Decidable p
 #check @Decidable.isFalse  -- ∀ {p : Prop}, ¬p → Decidable p
@@ -72,14 +74,14 @@ def toProofOrRefutation (p : Prop) [d : Decidable p] : p ∨ ¬p :=
   match d with
   | Decidable.isTrue h  => Or.inl h
   | Decidable.isFalse h => Or.inr h
+```
 
-/-! @@@
-## 12.2  DecidableEq as a type class instance
+# DecidableEq as a type class instance
 
 `DecidableEq α` is a type class (an alias for `(a b : α) → Decidable (a = b)`).
 An instance provides, for every pair of elements, a decision procedure.
-@@@ -/
 
+```lean
 -- Inspecting a DecidableEq instance:
 #check (@Nat.decEq : DecidableEq Nat)
 
@@ -91,14 +93,14 @@ def eqTest [DecidableEq α] (a b : α) : String :=
 
 #eval eqTest (3 : Nat) 3    -- "equal"
 #eval eqTest (3 : Nat) 4    -- "not equal"
+```
 
-/-! @@@
-## 12.3  Functor as a type class
+# Functor as a type class
 
 A `Functor` is a type constructor `F : Type → Type` equipped with a
 `map` operation satisfying the two functor laws.
-@@@ -/
 
+```lean
 -- Our own Functor class with laws:
 class MyFunctor (F : Type → Type) where
   fmap : (α → β) → F α → F β
@@ -117,11 +119,11 @@ instance : MyFunctor Option where
   fmap     := Option.map
   map_id   := fun o => congr_fun Option.map_id o
   map_comp := fun f g o => (Option.map_map f g o).symm
+```
 
-/-! @@@
-## 12.4  Foldable as a type class
-@@@ -/
+# Foldable as a type class
 
+```lean
 class MyFoldable (F : Type → Type) where
   fold : (α → β → β) → β → F α → β
 
@@ -144,11 +146,11 @@ theorem option_fold_none (f : α → β → β) (z : β) :
 theorem option_fold_some (f : α → β → β) (z : β) (x : α) :
     MyFoldable.fold f z (some x) = f x z :=
   rfl
+```
 
-/-! @@@
-## 12.5  Monoid: an algebraic structure with laws
-@@@ -/
+# Monoid: an algebraic structure with laws
 
+```lean
 class MyMonoid (α : Type) where
   one  : α
   mul  : α → α → α
@@ -171,9 +173,10 @@ instance : MyMonoid (List α) where
   mul_one   := List.append_nil
   one_mul   := List.nil_append
   mul_assoc := List.append_assoc
+```
 
-/-! @@@
-## 12.6  The boundary, revisited
+
+# The boundary, revisited
 
 After twelve weeks, we can state the decidability boundary precisely.
 
@@ -181,22 +184,25 @@ After twelve weeks, we can state the decidability boundary precisely.
 algorithm that produces either `isTrue h : p` or `isFalse h : ¬p`.
 
 The boundary is not arbitrary:
-- **Nat equality**: decidable. Algorithm: compare digit by digit.
-- **List equality** (when element equality is decidable): decidable.
+- *Nat equality*: decidable. Algorithm: compare digit by digit.
+- *List equality* (when element equality is decidable): decidable.
   Algorithm: compare element by element.
-- **Float equality**: NOT decidable soundly, because NaN ≠ NaN would
+- *Float equality*: NOT decidable soundly, because NaN ≠ NaN would
   require an algorithm that produces `isFalse h : ¬(NaN = NaN)`, but
   `rfl : NaN = NaN` would refute it.  The instance cannot exist.
-- **Function equality**: NOT decidable in general.  To check `f = g`
+- *Function equality*: NOT decidable in general.  To check `f = g`
   you would need to check all inputs — infinitely many.
-- **∀ n : Nat, P n**: NOT decidable in general.  There is no algorithm
+- *∀ n : Nat, P n*: NOT decidable in general.  There is no algorithm
   that terminates and checks all natural numbers.
   (This is related to the halting problem.)
 
 Understanding what is and is not decidable — and WHY — is one of the
 foundational concepts of computer science.
 
-## Exercises
+# Exercises
+%%%
+number := false
+%%%
 
 1. Implement `MyFunctor` for the binary tree type from Week 6.
    State and prove the two functor laws for your implementation.
@@ -205,9 +211,9 @@ foundational concepts of computer science.
    State and prove all three laws.
 
 3. Write a function
-   ```lean
+   ```lean -keep
    def mapDecide [DecidableEq α] (xs ys : List α) :
-       List (α ⊕ α) := ...
+       List (α ⊕ α) := sorry
    ```
    that pairs each element of `xs` with itself if it appears in `ys`
    (`Sum.inl`) and marks it missing otherwise (`Sum.inr`).
@@ -219,6 +225,3 @@ foundational concepts of computer science.
 5. Explain why `Decidable (∀ n : Nat, n + 0 = n)` nonetheless has an
    instance (`inferInstance` works).  What is different about this `∀`
    compared to an arbitrary `∀ n : Nat, P n`?
-@@@ -/
-
-end Week12

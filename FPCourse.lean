@@ -20,6 +20,7 @@ import FPCourse.Unit4.Week10_SetsRelations
 import FPCourse.Unit5.Week11_AbstractTypes
 import FPCourse.Unit5.Week12_TypeClassesDecidable
 
+import FPCourse.Unit6.Week13_Streams
 import FPCourse.Unit6.Week14_CurryHoward
 
 open Verso.Genre Manual
@@ -32,6 +33,12 @@ open Week05
 open Week06
 open Week07
 open Week08
+open Week09
+open Week10
+open Week11
+open Week12
+open Week13
+open Week14
 
 #doc (Manual) "CS1: Programming, Certified" =>
 
@@ -52,3 +59,9 @@ version of the course is available at
 {include FPCourse.Unit2.Week06_Trees}
 {include FPCourse.Unit2.Week07_PolymorphismDecidability}
 {include FPCourse.Unit3.Week08_HigherOrderFunctions}
+{include FPCourse.Unit3.Week09_Specifications}
+{include FPCourse.Unit4.Week10_SetsRelations}
+{include FPCourse.Unit5.Week11_AbstractTypes}
+{include FPCourse.Unit5.Week12_TypeClassesDecidable}
+{include FPCourse.Unit6.Week13_Streams}
+{include FPCourse.Unit6.Week14_CurryHoward}

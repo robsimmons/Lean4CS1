@@ -1,33 +1,34 @@
--- FPCourse/Unit6/Week13_Streams.lean
-import Mathlib.Data.List.Basic
-import Mathlib.Data.Nat.Basic
+import VersoManual
 
-/-! @@@
-# Week 13: Streams and Lazy Types
+open Verso Doc
+open Verso.Genre Manual
+open Verso.Genre.Manual.InlineLean
+namespace Week13
 
-## Infinite data and lazy evaluation
+#doc (Manual) "Week 13: Streams and Lazy Types" =>
 
-Every data type we have defined so far is *finite*: you can always
+# Infinite data and lazy evaluation
+%%%
+number := false
+%%%
+
+Every data type we have defined so far is _finite_: you can always
 reach a leaf.  But some computations naturally produce infinite
 sequences: the natural numbers, the Fibonacci sequence, an infinite
 stream of sensor readings.
 
-Lean's reduction strategy is *strict* (call-by-value): arguments are
+Lean's reduction strategy is _strict_ (call-by-value): arguments are
 evaluated before being passed.  To build infinite structures, we must
-*delay* evaluation explicitly using `Thunk`.
+_delay_ evaluation explicitly using `Thunk`.
 
 A `Thunk α` is a suspended computation of type `α`.  It is not
 evaluated until forced.  By building infinite structures out of
 `Thunk`s, we can represent them finitely in memory and compute as many
 elements as needed.
-@@@ -/
 
-namespace Week13
+# Thunk: explicit laziness
 
-/-! @@@
-## 13.1  Thunk: explicit laziness
-@@@ -/
-
+```lean
 -- Thunk is defined in Lean's core library:
 -- structure Thunk (α : Type u) where mk ::
 --   fn : Unit → α
@@ -41,14 +42,14 @@ namespace Week13
 -- Creating and forcing a Thunk:
 def lazyFive : Thunk Nat := Thunk.mk (fun _ => 2 + 3)
 #eval lazyFive.get   -- 5  (computed only when forced)
+```
 
-/-! @@@
-## 13.2  Lazy lists (streams)
+# Lazy lists (streams)
 
-A lazy list is either empty or a head value paired with a *thunked*
+A lazy list is either empty or a head value paired with a _thunked_
 tail.  The tail is not computed until needed.
-@@@ -/
 
+```lean
 inductive LList (α : Type) where
   | nil  : LList α
   | cons : α → Thunk (LList α) → LList α
@@ -64,11 +65,11 @@ def LList.drop : Nat → LList α → LList α
   | 0,     s            => s
   | _,     .nil         => .nil
   | n + 1, .cons _ t    => LList.drop n t.get
+```
 
-/-! @@@
-## 13.3  Canonical infinite streams
-@@@ -/
+# Canonical infinite streams
 
+```lean
 -- LList is always nonempty (it has a constructor)
 instance : Nonempty (LList α) := ⟨.nil⟩
 
@@ -91,11 +92,11 @@ def fibs : LList Nat := fibsFrom 0 1
 -- Test:
 #eval LList.take 10 nats    -- [0,1,2,3,4,5,6,7,8,9]
 #eval LList.take 10 fibs    -- [0,1,1,2,3,5,8,13,21,34]
+```
 
-/-! @@@
-## 13.4  Map on streams
-@@@ -/
+# Map on streams
 
+```lean
 def LList.map (f : α → β) : LList α → LList β
   | .nil       => .nil
   | .cons h t  => .cons (f h) (Thunk.mk (fun _ => LList.map f t.get))
@@ -114,9 +115,9 @@ theorem map_take (f : α → β) (n : Nat) :
     | cons h t =>
         simp only [LList.map, LList.take]
         exact congrArg (f h :: ·) (ih t.get)
+```
 
-/-! @@@
-## 13.5  Filter on streams
+# Filter on streams
 
 Filter on an infinite stream is partial: if the predicate is always
 false, filter never terminates.  We cannot define a total filter on
@@ -130,26 +131,26 @@ functions.  A stream filter would require `partial`, losing the
 ability to prove properties about it.
 
 We CAN define filter on a `take`n prefix:
-@@@ -/
 
+```lean
 def LList.takeWhile (p : α → Bool) : LList α → List α
   | .nil       => []
   | .cons h t  => if p h then h :: LList.takeWhile p t.get else []
 
 #eval LList.takeWhile (· < 5) nats    -- [0,1,2,3,4]
+```
 
-/-! @@@
-## 13.6  Coinduction: specifications about infinite streams
+# Coinduction: specifications about infinite streams
 
 For finite data, we use induction to prove properties: "for all finite
 inputs, the property holds."
 
-For infinite data (streams), we use *coinduction*: "the property holds
+For infinite data (streams), we use _coinduction_: "the property holds
 at every finite prefix."
 
 The specification of `nats` is a good example:
-@@@ -/
 
+```lean
 -- Specification: the nth element of nats is n.
 -- Note: with partial definitions, we state the property but defer the proof.
 theorem nats_take_eq : ∀ n : Nat, LList.take n nats = List.range n := by
@@ -159,9 +160,9 @@ theorem nats_take_eq : ∀ n : Nat, LList.take n nats = List.range n := by
   | succ n _ =>
     simp only [LList.take, nats, natsFrom, List.range_succ]
     sorry
+```
 
-/-! @@@
-## 13.7  Non-termination and the Thunk boundary
+# Non-termination and the Thunk boundary
 
 The `Thunk` type makes explicit what is delayed.  Every time you see
 `Thunk α` in a type, you know: "this computation has not run yet."
@@ -173,13 +174,16 @@ between:
 
 Thunks do not cross this boundary.  A `Thunk` value IS a term — it is
 just a function waiting to be called.  The infinite structure exists
-as a *description* of how to produce any finite prefix; it does not
+as a _description_ of how to produce any finite prefix; it does not
 actually exist as an infinite object in memory.
 
 This is computationally honest: real programs do not hold infinite
 structures; they hold descriptions and lazily demand pieces.
 
-## Exercises
+# Exercises
+%%%
+number := false
+%%%
 
 1. Define `LList.zip : LList α → LList β → LList (α × β)` that pairs
    corresponding elements.  State its specification:
@@ -192,8 +196,8 @@ structures; they hold descriptions and lazily demand pieces.
    on `nats`.  Check with `#eval` that the first 10 elements are correct.
 
 4. Explain why we cannot define:
-   ```lean
-   def LList.filter (p : α → Bool) : LList α → LList α
+   ```lean -keep
+   def LList.filter (p : α → Bool) : LList α → LList α := sorry
    ```
    as a total function in Lean.  What would happen to the termination
    checker?
@@ -202,6 +206,3 @@ structures; they hold descriptions and lazily demand pieces.
    "`map f xs` is the stream where the nth element is `f` applied to
    the nth element of `xs`."  This is exactly `map_take`; read it and
    explain each part.
-@@@ -/
-
-end Week13

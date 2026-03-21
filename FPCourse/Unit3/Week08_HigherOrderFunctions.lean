@@ -6,7 +6,7 @@ open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 namespace Week08
 
-#doc (Manual) "Higher-Order Functions" =>
+#doc (Manual) "Week 8: Higher-Order Functions" =>
 
 # Functions as values
 %%%

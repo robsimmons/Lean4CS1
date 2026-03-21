@@ -1,24 +1,29 @@
--- FPCourse/Unit6/Week14_CurryHoward.lean
-import Mathlib.Data.List.Basic
-import Mathlib.Logic.Basic
+import VersoManual
 
-/-! @@@
-# Week 14: The Curry-Howard Correspondence
+open Verso Doc
+open Verso.Genre Manual
+open Verso.Genre.Manual.InlineLean
+namespace Week14
 
-## Naming what you already know
+#doc (Manual) "Week 14: The Curry-Howard Correspondence" =>
+
+# Naming what you already know
+%%%
+number := false
+%%%
 
 By this point in the course you have been living the Curry-Howard
 correspondence for thirteen weeks.  This week we name it, state it
 precisely, and see it embodied in the capstone: a type-checker whose
-type *is* its correctness proof.
+type _is_ its correctness proof.
 
 The Curry-Howard correspondence is the observation — discovered
 independently by Haskell Curry (1934) and William Howard (1969) —
-that the system of *propositions and their proofs* is isomorphic to
-the system of *types and their terms*.  They are not analogous.
+that the system of _propositions and their proofs_ is isomorphic to
+the system of _types and their terms_.  They are not analogous.
 They are the same thing, viewed from two angles.
 
-Lean does not *implement* this correspondence.  Lean *is* a system in
+Lean does not _implement_ this correspondence.  Lean _is_ a system in
 which the correspondence is the foundational design principle.  You
 have not been using an analogy; you have been using the real thing.
 
@@ -32,37 +37,67 @@ on top of that foundation, but the correspondence itself lives here.
 You have been working inside it since Week 0.  This week names it.
 
 That is also why this course is the direct prerequisite for
-**CS2: Certified Proofs**.  CS2 does not introduce a new subject.
-It flips the orientation: from `Type` to `Prop`, from *computing*
-a value to *proving* a proposition.  Every concept covered here —
+*CS2: Certified Proofs*.  CS2 does not introduce a new subject.
+It flips the orientation: from `Type` to `Prop`, from _computing_
+a value to _proving_ a proposition.  Every concept covered here —
 data definitions, specifications, recursion, higher-order functions,
 sets, relations, type classes — ports intact to that setting.
 The entire structure of this course is the foundation.
-@@@ -/
 
-namespace Week14
-
-/-! @@@
-## 14.1  The correspondence table
+# The correspondence table
 
 Each row of the following table presents two views of the same concept.
 
-| Logic (left view) | Type Theory (right view) | Lean |
-|-------------------|--------------------------|------|
-| Proposition P | Type P | `P : Prop` |
-| Proof of P | Term of type P | `h : P` |
-| P is provable | P is inhabited | `Nonempty P` |
-| P → Q (implication) | Function type P → Q | `fun h : P => ...` |
-| P ∧ Q (conjunction) | Product type P × Q | `And.intro : P → Q → P ∧ Q` |
-| P ∨ Q (disjunction) | Sum type P ⊕ Q | `Or.inl : P → P ∨ Q` |
-| ⊥ (absurdity / False) | Empty type | `False : Prop` |
-| ¬P (negation) | Function type P → False | `fun h : P => False.elim ...` |
-| ∀ x : α, P x | Dependent function (Π) | `(x : α) → P x` |
-| ∃ x : α, P x | Dependent pair (Σ) | `⟨witness, proof⟩` |
+:::table
+*
+ * Logic (left view)
+ * Type Theory (right view)
+ * Lean
+*
+ * Proposition P
+ * Type P
+ * `P : Prop`
+*
+ * Proof of P
+ * Term of type P
+ * `h : P`
+*
+ * P is provable
+ * P is inhabited
+ * `Nonempty P`
+*
+ * P → Q (implication)
+ * Function type P → Q
+ * `fun h : P => ...`
+*
+ * P ∧ Q (conjunction)
+ * Product type P × Q
+ * `And.intro : P → Q → P ∧ Q`
+*
+ * P ∨ Q (disjunction)
+ * Sum type P ⊕ Q
+ * `Or.inl : P → P ∨ Q`
+*
+ * ⊥ (absurdity / False)
+ * Empty type
+ * `False : Prop`
+*
+ * ¬P (negation)
+ * Function type P → False
+ * `fun h : P => False.elim ...`
+*
+ * ∀ x : α, P x
+ * Dependent function (Π)
+ * `(x : α) → P x`
+*
+ * ∃ x : α, P x
+ * Dependent pair (Σ)
+ * `⟨witness, proof⟩`
+:::
 
 This is not a mapping we impose.  These are the same thing.
-@@@ -/
 
+```lean
 -- Every row of the table, demonstrated:
 
 -- Proposition / Type:
@@ -87,14 +122,15 @@ example : ∀ n : Nat, n + 0 = n := Nat.add_zero  -- a dependent function
 
 -- ∃ / Σ type:
 example : ∃ n : Nat, n > 100 := ⟨101, by decide⟩  -- a dependent pair
+```
 
-/-! @@@
-## 14.2  Proofs ARE terms: a demonstration
+
+#  Proofs ARE terms: a demonstration
 
 The following function and theorem look syntactically identical.
 That is not a coincidence.
-@@@ -/
 
+```lean
 -- A computational function:
 def addOne : Nat → Nat := fun n => n + 1
 
@@ -109,19 +145,19 @@ def makePair : α → β → α × β := fun a b => (a, b)
 theorem makeConjunction (h1 : P) (h2 : Q) : P ∧ Q := And.intro h1 h2
 
 -- And.intro IS (essentially) Prod.mk, working on Props.
+```
 
-/-! @@@
-## 14.3  The capstone: a type-checker whose type is its proof
+# The capstone: a type-checker whose type is its proof
 
 We define a small typed language and a type-checker for it.  The
-type-checker's return type includes a *proof* that the expression is
+type-checker's return type includes a _proof_ that the expression is
 well-typed.  Any expression that passes the checker comes with a
 certificate.
 
 This is Curry-Howard in its most direct form: the act of type-checking
 IS the act of proof construction.
-@@@ -/
 
+```lean
 -- Types of our mini-language:
 inductive Ty where
   | Nat  : Ty
@@ -145,16 +181,17 @@ def Context := List (String × Ty)
 def ctxLookup : Context → String → Option Ty
   | [],            _   => none
   | (x, τ) :: ctx, y  => if x == y then some τ else ctxLookup ctx y
+```
 
-/-! @@@
-## 14.4  The typing relation
+
+# The typing relation
 
 The typing relation `Typed ctx e τ` is an inductive proposition:
 it holds exactly when expression `e` has type `τ` in context `ctx`.
 
-This is the *specification* for the type-checker.
-@@@ -/
+This is the _specification_ for the type-checker.
 
+```lean
 inductive Typed : Context → Term → Ty → Prop where
   | natLit  : Typed ctx (.natLit n) .Nat
   | boolLit : Typed ctx (.boolLit b) .Bool
@@ -165,17 +202,17 @@ inductive Typed : Context → Term → Ty → Prop where
               Typed ctx (.app f e) τ₂
   | lam     : Typed ((x, τ₁) :: ctx) body τ₂ →
               Typed ctx (.lam x τ₁ body) (.Arr τ₁ τ₂)
+```
 
-/-! @@@
-## 14.5  The type-checker
+# The type-checker
 
 `typecheck ctx e` returns `some ⟨τ, h⟩` where `h : Typed ctx e τ`
 if `e` is well-typed, and `none` otherwise.
 
 The return type `Option (Σ τ, Typed ctx e τ)` IS the correctness
 specification.  Any `some` result carries a proof.
-@@@ -/
 
+```lean
 def typecheck : (ctx : Context) → (e : Term) →
     Option (Σ' τ, Typed ctx e τ)
   | ctx, .natLit n  =>
@@ -197,30 +234,31 @@ def typecheck : (ctx : Context) → (e : Term) →
     match typecheck ((x, τ₁) :: ctx) body with
     | some ⟨τ₂, hbody⟩ => some ⟨.Arr τ₁ τ₂, Typed.lam hbody⟩
     | none              => none
+```
 
-/-! @@@
-## 14.6  Soundness: every result is correct
+
+# Soundness: every result is correct
 
 Soundness follows immediately from the return type: any time `typecheck`
 returns `some ⟨τ, h⟩`, `h` IS the proof that the term has type `τ`.
 There is no gap between the checker and the proof.
 
-**Evaluation.**  The type-checker *is* an evaluator — it reduces the
+*Evaluation.*  The type-checker _is_ an evaluator — it reduces the
 term `e` through the pattern-match clauses of `typecheck`, each step
 applying one rule of the typing relation, until it reaches a leaf
 (`natLit`, `boolLit`, `var`) or fails.  The proof `h` is not constructed
-separately; it is the *value produced by evaluation of `typecheck`*.
+separately; it is the _value produced by evaluation of `typecheck`_.
 This is Curry-Howard lived from the inside: type-checking IS proof
 construction, and proof construction IS evaluation.
 
 This is in contrast with conventional type-checkers, which return a
-type or an error, and whose *correctness* requires a separate proof
+type or an error, and whose _correctness_ requires a separate proof
 (in a meta-theory) that the checker matches the typing relation.
 
 In our checker, the correctness proof is built into the return value.
 The type-checker and the proof of soundness are the same program.
-@@@ -/
 
+```lean
 -- Soundness: if typecheck returns some ⟨τ, h⟩, then h : Typed ctx e τ.
 -- This is immediate from the return type — no proof needed separately.
 -- Any result of the form `some ⟨τ, h⟩` already carries h : Typed ctx e τ.
@@ -229,35 +267,38 @@ theorem typecheck_sound (ctx : Context) (e : Term) (τ : Ty) (h : Typed ctx e τ
   cases typecheck ctx e with
   | none => exact absurd h (by sorry)  -- completeness not proved here
   | some p => exact ⟨p.1, p.2, rfl⟩
+```
 
-/-! @@@
-## 14.7  What you have learned
+# What you have learned
 
 You entered this course knowing that programs have types.  You leave it
 knowing that:
 
-1. **Propositions are types**.  A logical claim is a Lean type.  Its
+1. *Propositions are types*.  A logical claim is a Lean type.  Its
    proofs are the terms inhabiting that type.
 
-2. **Proof-carrying types are programs**.  A function whose type includes
+2. *Proof-carrying types are programs*.  A function whose type includes
    a proposition requires that proposition to be proved before it can be
    called.  The compiler enforces this.
 
-3. **Decidability is structured**.  Some propositions have decidable
+3. *Decidability is structured*.  Some propositions have decidable
    instances — algorithms that mechanically produce the proof or the
    refutation.  Others do not.  The `Decidable` type class captures this.
    `Float` lacks `DecidableEq` for a precise mathematical reason.
 
-4. **Specifications are types**.  `CorrectSort`, `IsBST`, `LawfulDict`,
+4. *Specifications are types*.  `CorrectSort`, `IsBST`, `LawfulDict`,
    `Typed` — these are all types.  Satisfying a specification means
    inhabiting the type.
 
-5. **The compiler is the verifier**.  When a file type-checks, every
+5. *The compiler is the verifier*.  When a file type-checks, every
    claim in every type has been verified by the elaborator.
 
 This is the Curry-Howard correspondence, lived from the inside.
 
-## Exercises
+# Exercises
+%%%
+number := false
+%%%
 
 1. Add a `cond : Term → Term → Term → Term` constructor to `Term`
    (conditional: if-then-else).  Extend `Typed` with a rule:
@@ -276,10 +317,7 @@ This is the Curry-Howard correspondence, lived from the inside.
    different from those in Section 14.1, connecting logical concepts you
    have used in this course to type-theoretic concepts.
 
-5. State (as a Prop) what it would mean for `typecheck` to be *complete*
+5. State (as a Prop) what it would mean for `typecheck` to be _complete_
    as well as sound: "if `Typed ctx e τ` holds, then `typecheck ctx e`
    returns `some ⟨τ, _⟩`."  This is a stronger statement than soundness.
    Do you think the implementation above is complete?
-@@@ -/
-
-end Week14

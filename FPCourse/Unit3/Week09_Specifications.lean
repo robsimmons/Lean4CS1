@@ -1,21 +1,26 @@
--- FPCourse/Unit3/Week09_Specifications.lean
+import VersoManual
 import Mathlib.Data.List.Sort
-import Mathlib.Data.List.Pairwise
 
+open Verso Doc
+open Verso.Genre Manual
+open Verso.Genre.Manual.InlineLean
+namespace Week09
 open scoped List
 
-/-! @@@
-# Week 9: Specifications in Practice
+#doc (Manual) "Week 9: Specifications in Practice" =>
 
-## What is a correct sort?
+# What is a correct sort?
+%%%
+number := false
+%%%
 
 Sorting is one of the most studied problems in computer science, yet
 most textbooks define correctness informally.  We will define it
 precisely as a type.
 
 A correct sorting function must satisfy two independent conditions:
-1. **Sorted output**: the result list is in non-decreasing order.
-2. **Permutation**: the result contains exactly the same elements as
+1. *Sorted output*: the result list is in non-decreasing order.
+2. *Permutation*: the result contains exactly the same elements as
    the input, in the same multiplicity.
 
 Both conditions are needed.  Without "sorted": returning the empty list
@@ -23,20 +28,18 @@ or a constant list would satisfy "permutation" alone.  Without "permutation":
 returning `[]` would satisfy "sorted" alone.
 
 Together, they express exactly what we mean by "correctly sorts."
-@@@ -/
 
-namespace Week09
-
+```lean
 -- List.Sorted is now List.Pairwise in Lean 4.28 / Mathlib
 abbrev List.Sorted (r : α → α → Prop) (xs : List α) : Prop := List.Pairwise r xs
+```
 
-/-! @@@
-## 9.1  The Sorted predicate
+# The Sorted predicate
 
 `List.Sorted r xs` holds iff every adjacent pair in `xs` satisfies `r`.
 We use `(· ≤ ·)` for ascending order.
-@@@ -/
 
+```lean
 -- Sorted is now an alias for List.Pairwise:
 #check @List.Pairwise   -- (r : α → α → Prop) → List α → Prop
 
@@ -44,15 +47,15 @@ We use `(· ≤ ·)` for ascending order.
 example : List.Sorted (· ≤ ·) ([1, 2, 3, 4] : List Nat) := by decide
 example : ¬ List.Sorted (· ≤ ·) ([1, 3, 2] : List Nat) := by decide
 example : List.Sorted (· ≤ ·) ([] : List Nat) := by decide   -- vacuously
+```
 
-/-! @@@
-## 9.2  The Perm predicate
+# The Perm predicate
 
 `List.Perm xs ys` (written `xs ~ ys`) holds iff `xs` is a permutation
 of `ys`.  Equivalently: both lists contain the same elements with the
 same multiplicities.
-@@@ -/
 
+```lean
 #check @List.Perm   -- List α → List α → Prop
 
 -- Examples:
@@ -63,14 +66,14 @@ example : ¬ ([1, 2] : List Nat) ~ [1, 2, 3] := by decide
 -- Perm is symmetric, transitive, and congruent with respect to cons.
 theorem perm_symm (xs ys : List α) : xs ~ ys → ys ~ xs :=
   List.Perm.symm
+```
 
-/-! @@@
-## 9.3  The CorrectSort specification
+# The CorrectSort specification
 
 This is the heart of the week: a single type that captures what it means
 for a function to be a correct sorting function.
-@@@ -/
 
+```lean
 -- Read aloud: "for every list xs of Nat,
 --   (sort xs is sorted) AND (sort xs is a permutation of xs)"
 -- The ∀ quantifies over all possible inputs.
@@ -79,14 +82,14 @@ def CorrectSort (sort : List Nat → List Nat) : Prop :=
   ∀ xs : List Nat,
     List.Sorted (· ≤ ·) (sort xs) ∧   -- output is sorted
     sort xs ~ xs                        -- output is a permutation of input
+```
 
-/-! @@@
-## 9.4  Insertion sort: implementation
+# Insertion sort: implementation
 
 Insertion sort inserts each element of the input into the correct
 position in an already-sorted list.
-@@@ -/
 
+```lean
 def insert' (x : Nat) : List Nat → List Nat
   | []      => [x]
   | h :: t  => if x ≤ h then x :: h :: t else h :: insert' x t
@@ -97,16 +100,16 @@ def insertionSort : List Nat → List Nat
 
 #eval insertionSort [5, 3, 1, 4, 2]    -- [1, 2, 3, 4, 5]
 #eval insertionSort []                  -- []
+```
 
-/-! @@@
-## 9.5  Proving CorrectSort — provided term-mode proofs
+# Proving CorrectSort — provided term-mode proofs
 
 Proving `CorrectSort insertionSort` requires two sub-proofs.  Both
 are provided here as term-mode proofs for you to read.
 
-**Helper 1**: inserting into a sorted list produces a sorted list.
-@@@ -/
-
+:::paragraph
+*Helper 1*: inserting into a sorted list produces a sorted list.
+```lean
 -- Local helper for insert_sorted
 private theorem insert_perm' (x : Nat) :
     ∀ xs : List Nat, insert' x xs ~ x :: xs
@@ -146,11 +149,12 @@ theorem insert_sorted (x : Nat) :
         | inl heq => exact heq ▸ hxh
         | inr hmem => exact (List.pairwise_cons.mp hst).1 y hmem
       · exact insert_sorted x t (List.pairwise_cons.mp hst).2
+```
+:::
 
-/-! @@@
-**Helper 2**: inserting preserves the permutation relation.
-@@@ -/
-
+:::paragraph
+*Helper 2*: inserting preserves the permutation relation.
+```lean
 theorem insert_perm (x : Nat) :
     ∀ xs : List Nat, insert' x xs ~ x :: xs
   | []      => List.Perm.refl _
@@ -161,20 +165,22 @@ theorem insert_perm (x : Nat) :
     · exact List.Perm.trans
         (List.Perm.cons h (insert_perm x t))
         (List.Perm.swap x h t)
+```
+:::
 
-/-! @@@
-**Helper 3**: insertion sort produces a sorted list.
-@@@ -/
-
+:::paragraph
+*Helper 3*: insertion sort produces a sorted list.
+```lean
 theorem insertionSort_sorted :
     ∀ xs : List Nat, List.Sorted (· ≤ ·) (insertionSort xs)
   | []      => List.Pairwise.nil
   | h :: t  => insert_sorted h (insertionSort t) (insertionSort_sorted t)
+```
+:::
 
-/-! @@@
-**Helper 4**: insertion sort is a permutation.
-@@@ -/
-
+:::paragraph
+*Helper 4*: insertion sort is a permutation.
+```lean
 theorem insertionSort_perm :
     ∀ xs : List Nat, insertionSort xs ~ xs
   | []      => List.Perm.refl _
@@ -182,32 +188,34 @@ theorem insertionSort_perm :
     List.Perm.trans
       (insert_perm h (insertionSort t))
       (List.Perm.cons h (insertionSort_perm t))
+```
+:::
 
-/-! @@@
-**Main theorem**: insertion sort is correct.
-@@@ -/
-
+:::paragraph
+*Main theorem*: insertion sort is correct.
+```lean
 theorem insertionSort_correct : CorrectSort insertionSort :=
   fun xs => ⟨insertionSort_sorted xs, insertionSort_perm xs⟩
+```
+:::
 
-/-! @@@
 ## 9.6  Verifying on concrete instances
 
 Because `Sorted` and `Perm` are decidable on `List Nat`, we can check
 correctness on concrete examples with `decide`.
-@@@ -/
 
+```lean
 example : List.Sorted (· ≤ ·) (insertionSort [3, 1, 4, 1, 5, 9]) := by decide
 example : insertionSort [3, 1, 4, 1, 5] ~ [3, 1, 4, 1, 5] := by decide
+```
 
-/-! @@@
-## 9.7  Specifications with pre- and postconditions
+# Specifications with pre- and postconditions
 
 A more general specification pattern uses explicit pre- and postconditions
 attached to function types.  This is the proof-carrying type pattern
 generalized.
-@@@ -/
 
+```lean
 -- A function with a precondition in its type:
 def sortedMerge
     (xs ys : List Nat)
@@ -219,9 +227,12 @@ def sortedMerge
   ⟨(xs ++ ys).mergeSort (· ≤ ·),
    ⟨List.pairwise_mergeSort' (· ≤ ·) (xs ++ ys),
     List.mergeSort_perm (xs ++ ys) (· ≤ ·)⟩⟩
+```
 
-/-! @@@
-## Exercises
+# Exercises
+%%%
+number := false
+%%%
 
 1. Use `decide` to check that `insertionSort [9, 1, 3, 7, 2, 6]` produces
    a sorted list.
@@ -238,6 +249,3 @@ def sortedMerge
 5. Write the type of a hypothetical `mergeSort : List Nat → List Nat`
    such that its type INCLUDES the proof that it satisfies `CorrectSort`.
    Use a subtype `{ f : List Nat → List Nat // CorrectSort f }`.
-@@@ -/
-
-end Week09
