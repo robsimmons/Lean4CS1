@@ -31,6 +31,7 @@ open Week04
 open Week05
 open Week06
 open Week07
+open Week08
 
 #doc (Manual) "CS1: Programming, Certified" =>
 
@@ -50,3 +51,4 @@ version of the course is available at
 {include FPCourse.Unit2.Week05_Lists}
 {include FPCourse.Unit2.Week06_Trees}
 {include FPCourse.Unit2.Week07_PolymorphismDecidability}
+{include FPCourse.Unit2.Week08_HigherOrderFunctions}

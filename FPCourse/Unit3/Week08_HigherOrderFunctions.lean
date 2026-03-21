@@ -1,34 +1,37 @@
--- FPCourse/Unit3/Week08_HigherOrderFunctions.lean
-import Mathlib.Data.List.Basic
+import VersoManual
+import Batteries.Logic
 
-/-! @@@
-# Week 8: Higher-Order Functions
+open Verso Doc
+open Verso.Genre Manual
+open Verso.Genre.Manual.InlineLean
+namespace Week08
 
-## Functions as values
+#doc (Manual) "Higher-Order Functions" =>
 
-A *higher-order function* takes other functions as arguments or returns
+# Functions as values
+%%%
+number := false
+%%%
+
+A _higher-order function_ takes other functions as arguments or returns
 functions as results.  In a typed functional language, this is not a
 special case — functions are values like any other, and `→` is a type
 constructor like `×` or `List`.
 
-Higher-order functions enable *abstraction over computation patterns*.
+Higher-order functions enable _abstraction over computation patterns_.
 Rather than writing separate functions for "sum all elements" and
 "product all elements," we write one function `fold` parameterized by
 the combining operation.
 
-Every abstraction in this course corresponds to a *specification
-pattern*: a family of propositions that all instances must satisfy.
-@@@ -/
+Every abstraction in this course corresponds to a _specification
+pattern_: a family of propositions that all instances must satisfy.
 
-namespace Week08
-
-/-! @@@
-## 8.1  map, filter, fold: the canonical trio
+# map, filter, fold: the canonical trio
 
 These three functions together cover an enormous range of list
 computations.
-@@@ -/
 
+```lean
 -- map: transform every element
 #check @List.map      -- (α → β) → List α → List β
 
@@ -52,13 +55,13 @@ computations.
 #eval [1,2,3,4,5].filter (· % 2 == 0)      -- [2,4]
 #eval [1,2,3,4,5].foldl (· + ·) 0          -- 15
 #eval [1,2,3,4,5].foldr (· :: ·) []        -- [1,2,3,4,5]
+```
 
-/-! @@@
-## 8.2  Deriving map from fold
+# Deriving map from fold
 
 `map` can be expressed as a `foldr`:
-@@@ -/
 
+```lean
 def mapViaFoldr (f : α → β) (xs : List α) : List β :=
   xs.foldr (fun x acc => f x :: acc) []
 
@@ -72,11 +75,11 @@ theorem mapViaFoldr_eq_map (f : α → β) (xs : List α) :
 -- Similarly, filter can be expressed as foldr:
 def filterViaFoldr (p : α → Bool) (xs : List α) : List α :=
   xs.foldr (fun x acc => if p x then x :: acc else acc) []
+```
 
-/-! @@@
-## 8.3  The functor laws
+# The functor laws
 
-`List.map` satisfies two *functor laws*.  These are propositions —
+`List.map` satisfies two _functor laws_.  These are propositions —
 logical types — that any correct implementation of `map` must inhabit.
 
 **Law 1 (Identity)**: mapping the identity function does nothing.
@@ -85,8 +88,8 @@ logical types — that any correct implementation of `map` must inhabit.
 These laws are not just bureaucratic requirements.  They are the
 algebraic content of what it means to "transform elements without
 changing structure."
-@@@ -/
 
+```lean
 -- Functor Law 1: map id = id
 -- Read: "for all lists, mapping the identity is the identity"
 theorem map_id_law : ∀ xs : List α, xs.map id = xs :=
@@ -98,16 +101,16 @@ theorem map_id_law : ∀ xs : List α, xs.map id = xs :=
 theorem map_comp_law : ∀ (f : β → γ) (g : α → β) (xs : List α),
     xs.map (f ∘ g) = (xs.map g).map f :=
   fun f g xs => by simp [← List.map_map]
+```
 
-/-! @@@
-## 8.4  Writing law statements for other types
+# Writing law statements for other types
 
 A key skill: given a new type with a map-like operation, state the
 functor laws for it.  The laws have the same FORM regardless of the type.
 
 Here are the laws for `Option.map`:
-@@@ -/
 
+```lean
 -- You should read these and understand their form.
 -- Then practice writing them for new types (see exercises).
 
@@ -117,9 +120,9 @@ theorem option_map_id : ∀ o : Option α, o.map id = o :=
 theorem option_map_comp : ∀ (f : β → γ) (g : α → β) (o : Option α),
     o.map (f ∘ g) = (o.map g).map f :=
   fun f g o => (Option.map_map f g o).symm
+```
 
-/-! @@@
-## 8.5  fold and its specification pattern
+# fold and its specification pattern
 
 `foldr f z` replaces each `::` constructor with `f` and the terminal
 `[]` with `z`.
@@ -128,8 +131,8 @@ The key specification insight: many list properties are theorems about
 `foldr`.  Length, sum, map, filter, append — all can be stated as `foldr`
 computations.  The specification of `foldr` itself is therefore the
 specification of a whole family of operations.
-@@@ -/
 
+```lean
 -- foldr specification: reconstructing the list
 theorem foldr_cons_nil (xs : List α) :
     xs.foldr (· :: ·) [] = xs :=
@@ -139,18 +142,18 @@ theorem foldr_cons_nil (xs : List α) :
 theorem foldr_append (f : α → β → β) (z : β) (xs ys : List α) :
     (xs ++ ys).foldr f z = xs.foldr f (ys.foldr f z) :=
   List.foldr_append
+```
 
-/-! @@@
-## 8.6  The fusion law
+# The fusion law
 
 When a `map` is followed immediately by a `fold`, they can be fused into
-a single `fold`.  This is a *semantic optimization*: the two-pass
+a single `fold`.  This is a _semantic optimization_: the two-pass
 computation is equal to the single-pass computation.
 
 Fusion laws are propositions.  Compilers use them as rewrite rules.
 We state them here as types; applying them requires knowing they hold.
-@@@ -/
 
+```lean
 -- map-foldr fusion:
 -- foldr f z (map g xs) = foldr (f ∘ g) z xs
 theorem map_foldr_fusion (f : β → γ → γ) (z : γ) (g : α → β) (xs : List α) :
@@ -158,12 +161,16 @@ theorem map_foldr_fusion (f : β → γ → γ) (z : γ) (g : α → β) (xs : L
   List.recOn xs
     rfl
     (fun h t ih => congrArg (f (g h) ·) ih)
+```
 
-/-! @@@
-## Exercises
+
+# Exercises
+%%%
+number := false
+%%%
 
 1. State the functor laws for a type you define:
-   ```lean
+   ```lean -keep
    inductive MyPair (α : Type) where
      | mk : α → α → MyPair α
    def MyPair.map (f : α → β) : MyPair α → MyPair β
@@ -186,7 +193,7 @@ theorem map_foldr_fusion (f : β → γ → γ) (z : γ) (g : α → β) (xs : L
    concatenates a list of lists.  Test it:
    ```
    #eval flatten [[1, 2], [3], [4, 5, 6]]   -- [1, 2, 3, 4, 5, 6]
-   #eval flatten ([] : List (List Nat))      -- []
+   #eval flatten ([] : List (List Nat))     -- []
    ```
    State its specification: `∀ xss, flatten xss = List.join xss`.
    Then write `countWhere : (α → Bool) → List α → Nat` using `foldr`
@@ -194,6 +201,3 @@ theorem map_foldr_fusion (f : β → γ → γ) (z : γ) (g : α → β) (xs : L
    ```
    #eval countWhere Nat.even [1, 2, 3, 4, 5]   -- 2
    ```
-@@@ -/
-
-end Week08
