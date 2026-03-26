@@ -217,13 +217,88 @@ Practice reading these:
 -- You should be able to read and understand the proposition.
 -- The proof term is here for your curiosity; you are not expected to produce it.
 theorem factorial_pos : ∀ n : Nat, 0 < factorial n :=
-  fun n => Nat.recOn n (Nat.lt.base 0) (fun n ih => Nat.mul_pos (Nat.succ_pos n) ih)
+  fun n => Nat.recOn n (Nat.lt_add_one 0) (fun n ih => Nat.mul_pos (Nat.succ_pos n) ih)
 
 -- "factorial is monotone: each value is no greater than the next"
 -- You should be able to read and understand the proposition.
 -- The proof term is here for your curiosity; you are not expected to produce it.
 theorem factorial_mono : ∀ n : Nat, factorial n ≤ factorial (n + 1) :=
   fun n => Nat.le_mul_of_pos_left (factorial n) (Nat.succ_pos n)
+
+/-
+## Worked out in class
+-/
+
+
+-- Check out the induction axiom for Nat!
+#check (@Nat.rec)
+
+/- @@@
+Formatted more nicely:
+
+```lean
+@Nat.rec :
+  {motive : ℕ → Sort u_1} →
+  motive Nat.zero →
+  ((n : ℕ) → motive n → motive n.succ) →
+  (t : ℕ) → motive t
+```
+@@@ -/
+
+/- @@@
+Problems worked out in class. Define some familar
+functions on ordinary data types by induction. Any
+recursive function is basically a *universal* built
+by applicaiton of the induction axiom for a given
+type to answer for base cases and step functions.
+@@@ -/
+
+def fac0 := 1
+def facStep (n facn : Nat) : Nat := (n+1) * facn
+#check @Nat.rec (fun _ => Nat) fac0 facStep
+#eval (@Nat.rec (fun _ => Nat) fac0 facStep) 5
+
+/- @@@
+@List.rec :
+  {α : Type u_2} →
+  {motive : List α → Sort u_1} →
+  motive [] →
+  ((head : α) → (tail : List α) → motive tail → motive (head :: tail)) →
+  (t : List α) → motive t
+@@@ -/
+
+def listLenBase := 0
+def stepListLen (_ : String) (_ : List String) (ansL : Nat) := ansL + 1
+
+#check @List.rec String (fun _ => Nat) listLenBase stepListLen
+#eval (@List.rec String (fun _ => Nat) listLenBase stepListLen) ["", "", ""]
+#check (@List.rec)
+
+
+/- @@@
+@BinTreeNat.rec :
+  {motive : BinTreeNat → Sort u_1} →
+  motive BinTreeNat.empty →
+  ((n : ℕ) → (l r : BinTreeNat) → motive l → motive r → motive (BinTreeNat.node n l r)) →
+  (t : BinTreeNat) → motive t
+@@@ -/
+
+
+inductive BinTreeNat where
+| empty
+| node (n : Nat) (l r : BinTreeNat)
+
+open BinTreeNat
+
+#check (@BinTreeNat.rec)
+#reduce (@BinTreeNat.rec (fun _ => Nat) 0 (fun n _ _ al ar => n + al + ar)) BinTreeNat.empty
+
+def myTree : BinTreeNat :=
+  node 1
+  (node 2 empty empty)
+  (node 5 empty empty)
+
+#reduce (@BinTreeNat.rec (fun _ => Nat) 0 (fun n _ _ al ar => n + al + ar)) myTree
 
 /-! @@@
 ## Exercises
