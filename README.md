@@ -3,12 +3,13 @@
 A literate Lean 4 curriculum introducing typed functional programming through the lens of the Curry-Howard correspondence. Every file compiles cleanly against Lean 4 / Mathlib — no `sorry`, no `by`.
 
 This fork of Kevin Sullivan's repository demonstrates the conversion of a 
-part of the CS1 course to [Verso](https://verso.lean-lang.org). Only the 
-first unit of the CS1 full course (weeks 0-3) are incorporated. 
+part of the CS1 course to [Verso](https://verso.lean-lang.org). Only the
+full-semester course, and not the Distillate, have been translated.
 
-Week 0 attempts a translation that uses a number of Verso's inline-code
+The translation isn't intended to be a fully-consistent work suitable for
+classroom use. Week 0's translation uses a number of Verso's inline-code
 display and math features, subsequent weeks are a more shallow/mechanical
-translation and only use Verso features for top-level code.
+translation and generally only use Verso features for top-level code.
 
 ## Building the document
 
