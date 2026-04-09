@@ -83,7 +83,7 @@ These are the atoms.  Now we connect them.
 @@@ -/
 
 -- Computation: a function takes input, returns output
-def double (n : Nat) : Nat := n * 2
+def double : Nat → Nat := fun n => n * 2
 #eval double 21   -- 42
 
 -- Logic: "if it's raining, the ground is wet"
