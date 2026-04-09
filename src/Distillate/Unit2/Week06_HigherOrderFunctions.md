@@ -25,6 +25,19 @@ refers to `f` as a parameter.  This is *parametric specification*:
 propositions that say something about the behavior of a function in
 terms of the functions passed to it.
 
+**The dual reading.**  A higher-order function on data transforms values
+using a function argument.  A higher-order function on propositions
+transforms proofs using an implication argument.  `map f` applies `f` to
+every element; logically, if you have a proof of `P x` for every `x` in
+a list, and a proof that `P x → Q x`, then you get a proof of `Q x` for
+every `x`.  The function argument is an implication; `map` applies it
+uniformly.
+
+You do not need to construct such proofs.  But the pattern is the same
+one you saw in Weeks 1–4: the arrow `→` is both computation and
+implication.  Higher-order functions correspond to proofs of propositions
+that take and return proofs of implications as arguments.
+
 ```lean
 namespace Week06
 ```
@@ -57,6 +70,18 @@ A correct `map` satisfies two laws:
    (mapping a composition is the same as two passes)
 
 These are not optional; they define what it means to be a correct `map`.
+
+**The dual reading of the Functor laws.**
+
+| Computational law | Logical reading |
+|-------------------|-----------------|
+| `map id xs = xs` | Applying a trivial implication (P → P) changes nothing |
+| `map (f ∘ g) = map f ∘ map g` | Chaining two implications is the same as applying their composition |
+
+These laws hold for the same reason in both readings: the structure
+of `map` does not inspect the elements, only passes them through the
+function argument.  This is parametricity — the deep reason that
+computation and logic stay in sync.
 
 ```lean
 -- Functor identity law: verified by decide for a concrete list
@@ -170,6 +195,22 @@ of the three: `map` and `filter` are abbreviations.
 In practice, use `map` when you are transforming elements, `filter`
 when you are selecting elements, and `fold` when you are accumulating.
 
+**The dual reading of fold.**
+
+`foldr f init xs` starts from `init` and applies `f` repeatedly.
+Logically, this is iterated modus ponens: if you have a base proposition
+and a rule that derives the next proposition from the current one,
+`fold` chains the derivations across the entire list.
+
+| `foldr` computation | Logical reading |
+|---------------------|-----------------|
+| `init : β` (starting value) | Base proposition (starting fact) |
+| `f : α → β → β` (combining step) | Inference rule: from an element and a fact, derive a new fact |
+| `foldr f init [x₁, x₂, x₃]` | Chain: apply the rule three times from the base |
+
+This is why `fold` is the most powerful of the three: it captures the
+general pattern of building an answer (or a proof) one step at a time.
+
 ## 6.4  Function composition and anonymous functions
 
 Anonymous functions (`fun x => ...`) and function composition (`∘`)
@@ -252,6 +293,9 @@ concrete instances for any specific type can be verified.
   work on lists of any element type.
 - Specifications of higher-order functions are *parametric*:
   they describe behavior in terms of the function argument.
+- **The dual reading**: higher-order functions on data are higher-order
+  functions on propositions.  `map` applies an implication uniformly;
+  `fold` chains inference steps.  The Functor laws hold in both readings.
 
 ```lean
 end Week06

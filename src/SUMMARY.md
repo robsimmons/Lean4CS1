@@ -6,6 +6,14 @@
 
 ---
 
+# CS1 Overview
+
+*A one-hour tour of functional programming through the Curry-Howard correspondence.*
+
+- [One Language, Two Readings](./Overview/OneLangTwoReadings.md)
+
+---
+
 # CS1 Distillate
 
 *A focused 9-week introduction for first-semester undergraduates.*

@@ -84,6 +84,39 @@ If your recursion does not obviously decrease, Lean will reject the
 definition.  This guarantee means every function you define in Lean
 always terminates.  There are no infinite loops.
 
+## 5.1a  The logical reading: recursion IS induction
+
+Every recursive definition has a logical twin.
+
+**Computational reading.**  To define a function on `Nat`, supply a base
+case (what to return for `0`) and a step (how to compute the answer for
+`n + 1` from the answer for `n`).
+
+**Logical reading.**  To prove a proposition for EVERY `Nat`, supply a
+base case (prove it for `0`) and a step (assuming it holds for `n`,
+prove it for `n + 1`).
+
+These are the same structure:
+
+| Computation | Logic |
+|-------------|-------|
+| `def f : Nat → α` | `theorem p : ∀ n : Nat, P n` |
+| Base case: `f 0 = ...` | Base case: proof of `P 0` |
+| Step: `f (n+1)` uses `f n` | Step: proof of `P n → P (n+1)` |
+| Structural recursion | Mathematical induction |
+
+You do not need to write induction proofs.  But recognize the pattern:
+every time you write a recursive function with a base case and a step,
+you are writing the same structure a mathematician uses to prove
+"for all n, ...".  This is Curry-Howard at work.
+
+```lean
+-- Computational reading: factorial computes n!
+-- Logical reading: this same structure could prove "for all n, P n"
+--   base case: P 0 holds              ↔  factorial 0 = 1
+--   step: P n implies P (n+1)         ↔  factorial (n+1) = (n+1) * factorial n
+```
+
 ## 5.2  Lists: the canonical recursive inductive type
 
 A list of natural numbers is either empty or a head element prepended
@@ -97,6 +130,18 @@ inductive List (α : Type) : Type
 
 Every list is either `[]` or `h :: t` for some head `h` and tail `t`.
 Functions on lists pattern-match on these two cases.
+
+The same duality applies to lists:
+
+| Computation on lists | Logic about lists |
+|---------------------|-------------------|
+| Base case: `f [] = ...` | Prove `P []` |
+| Step: `f (h :: t)` uses `f t` | From `P t`, prove `P (h :: t)` |
+| Structural recursion on `List` | Induction on `List` |
+
+The `decide`-verified specifications in §5.5 are the logical reading
+made concrete: each `#check (by decide : ...)` is Lean confirming that
+a proposition about the function is true.
 
 ```lean
 -- Length: count the elements
@@ -255,6 +300,10 @@ failure — or you prove that it always terminates in the relevant cases.
   input.  All defined functions are guaranteed to terminate.
 - **Specifications** for recursive functions: `decide` for concrete
   instances; `simp`/`omega`/`ring` for universal statements.
+- **The dual reading**: recursive definitions on inductive types
+  have the same structure as proofs by induction.  Base case and step
+  in computation = base case and step in logic.  This is Curry-Howard
+  applied to recursion.
 
 ```lean
 end Week05
